@@ -4,3 +4,6 @@
 /.settings/
 /config/
 /derbyDB/
+.idea/*
+warcgenerator.log
+WARCProcessor.iml
