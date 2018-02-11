@@ -16,6 +16,8 @@ import com.warcgenerator.core.helper.FileHelper;
 import com.warcgenerator.core.helper.LangFilterHelper;
 import com.warcgenerator.core.helper.OutputHelper;
 import com.warcgenerator.core.task.generateCorpus.state.GenerateCorpusState;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
 
 public class WebCrawlerHandler implements IWebCrawlerHandler {
 	private AppConfig config;
@@ -168,6 +170,7 @@ public class WebCrawlerHandler implements IWebCrawlerHandler {
 				if (config.getDownloadAgain()
 						|| !existPreviousWarcBean) {
 					bean.setData(htmlParseData.getHtml());
+					bean.setLanguage(getPageLanguage(htmlParseData.getHtml()));
 				}
 				
 				// Language filter
@@ -228,6 +231,16 @@ public class WebCrawlerHandler implements IWebCrawlerHandler {
 			}
 		}
 	}
+
+	private String getPageLanguage(String html) {
+        Element tagLang = Jsoup.parse(html).select("html").first();
+        String language = tagLang.attr("lang");
+        if (language != null && language.isEmpty()) {
+            language = tagLang.attr("xml:lang");
+        }
+
+        return language;
+    }
 	
 	private void addInactiveSites(HtmlParseData htmlParseData,
 			DataBean bean) {

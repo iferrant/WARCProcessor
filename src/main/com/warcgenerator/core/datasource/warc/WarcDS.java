@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -97,7 +98,7 @@ public class WarcDS extends DataSource implements IDataSource {
 			// Write a warcinfo record with description about how this WARC
 			// was made.
 			// If you want to write something in the head of warc
-			// writer.writeWarcinfoRecord(warc.getName(), "toConfigure");
+			writer.writeWarcinfoRecord(warc.getName(), "toConfigure");
 		} catch (IOException e) {
 			throw new OpenException(e);
 		}
@@ -208,9 +209,15 @@ public class WarcDS extends DataSource implements IDataSource {
 				}
 
 				ANVLRecord headers = new ANVLRecord(1);
-				writer.writeResourceRecord(bean.getUrl(),
+				if (bean.getLanguage() != null && !bean.getLanguage().isEmpty()) {
+                    headers.addLabelValue("WARC-language", bean.getLanguage());
+                }
+				writer.writeResponseRecord(bean.getUrl(),
 						ArchiveUtils.get14DigitDate(),
-						Constants.outputContentType, headers, is,
+						bean.getTypeDS(),
+						new URI(bean.getUrl()),
+						headers,
+						is,
 						is.available());
 				is.close();
 			} catch (IOException e) {
