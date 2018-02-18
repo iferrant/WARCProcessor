@@ -232,6 +232,13 @@ public class WebCrawlerHandler implements IWebCrawlerHandler {
 		}
 	}
 
+	/**
+	 * Parse and retrieve the page language based on the
+	 * "lang" or "xml:lang" attribute of the first html tag
+	 *
+	 * @param html HTML of the page in String format
+	 * @return Language of the page
+	 */
 	private String getPageLanguage(String html) {
         Element tagLang = Jsoup.parse(html).select("html").first();
         String language = tagLang.attr("lang");

@@ -1,23 +1,16 @@
 package com.warcgenerator.core.datasource.warc;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
+import com.warcgenerator.core.util.StringUtil;
 import org.apache.log4j.Logger;
-import org.archive.io.ArchiveRecord;
 import org.archive.io.arc.ARCConstants;
 import org.archive.io.warc.WARCWriter;
 import org.archive.io.warc.WARCWriterPoolSettings;
@@ -42,6 +35,7 @@ public class WarcDS extends DataSource implements IDataSource {
 	public static final String DS_TYPE = "WarcDS";
 	public static final String URL_TAG = "WarcURLTag";
 	public static final String REGEXP_URL_TAG = "RegExpURLAttribute";
+	private static final String HEADER_WARC_LANGUAGES = "WARC-All-Languages:";
 
 	@SuppressWarnings("unused")
 	private OutputWarcConfig config;
@@ -89,8 +83,8 @@ public class WarcDS extends DataSource implements IDataSource {
 			BufferedOutputStream bos = new BufferedOutputStream(
 					new FileOutputStream(warc));
 
-			List<String> metadata = new ArrayList<String>(1);
-			// metadata.add("something");
+			List<String> metadata = new ArrayList<>();
+			metadata.add(HEADER_WARC_LANGUAGES);
 
 			writer = new WARCWriter(new AtomicInteger(), bos, warc,
 					getSettings(false, "", null, metadata));
@@ -98,7 +92,7 @@ public class WarcDS extends DataSource implements IDataSource {
 			// Write a warcinfo record with description about how this WARC
 			// was made.
 			// If you want to write something in the head of warc
-			writer.writeWarcinfoRecord(warc.getName(), "toConfigure");
+            writer.writeWarcinfoRecord(warc.getName());
 		} catch (IOException e) {
 			throw new OpenException(e);
 		}
@@ -220,6 +214,11 @@ public class WarcDS extends DataSource implements IDataSource {
 						is,
 						is.available());
 				is.close();
+
+				// The condition is duplicated because is need it
+                if (bean.getLanguage() != null && !bean.getLanguage().isEmpty()) {
+                    writeHeader(HEADER_WARC_LANGUAGES, bean.getLanguage());
+                }
 			} catch (IOException e) {
 				e.printStackTrace();
 				throw new WriteException(e);
@@ -245,5 +244,46 @@ public class WarcDS extends DataSource implements IDataSource {
 			throw new CloseException(e);
 		}
 	}
+
+    /**
+     * Write header on the WARC file
+     *
+     * @param name Header name
+     * @param value Header value
+     * @throws DSException
+     */
+	private void writeHeader(String name, String value) throws DSException{
+        try {
+            BufferedReader file = new BufferedReader(new FileReader(warc));
+            String line;
+            StringBuilder inputBuffer = new StringBuilder();
+
+            while ((line = file.readLine()) != null) {
+                inputBuffer.append(line);
+                inputBuffer.append('\n');
+            }
+            String inputStr = inputBuffer.toString();
+
+            file.close();
+
+            // Retrieve the languages that already exist on the file
+            String aux = inputStr.split(HEADER_WARC_LANGUAGES)[1];
+            String languagesToSplit = aux.substring(0, aux.indexOf('\n'));
+            // Create a Set to avoid {@param name} repeated
+            Set<String> languagesSet = new HashSet<>(Arrays.asList(languagesToSplit.trim().split(" ")));
+            languagesSet.add(value);
+            // Create a String with the {@param name} values of the WARC file
+            String languages = StringUtil.collectionToString(languagesSet, " ");
+            inputStr = inputStr.replaceFirst("(?m)^"+name+".*$", name + " " + languages);
+
+            // write the new String with the replaced line OVER the same file
+            FileOutputStream fileOut = new FileOutputStream(warc);
+            fileOut.write(inputStr.getBytes());
+            fileOut.close();
+
+        } catch (IOException e) {
+            throw new DSException(e);
+        }
+    }
 
 }
