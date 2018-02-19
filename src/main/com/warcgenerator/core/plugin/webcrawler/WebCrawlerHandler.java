@@ -170,7 +170,7 @@ public class WebCrawlerHandler implements IWebCrawlerHandler {
 				if (config.getDownloadAgain()
 						|| !existPreviousWarcBean) {
 					bean.setData(htmlParseData.getHtml());
-					bean.setLanguage(getPageLanguage(htmlParseData.getHtml()));
+					bean.setContentType(htmlParseData.getContentType());
 				}
 				
 				// Language filter
@@ -232,23 +232,6 @@ public class WebCrawlerHandler implements IWebCrawlerHandler {
 		}
 	}
 
-	/**
-	 * Parse and retrieve the page language based on the
-	 * "lang" or "xml:lang" attribute of the first html tag
-	 *
-	 * @param html HTML of the page in String format
-	 * @return Language of the page
-	 */
-	private String getPageLanguage(String html) {
-        Element tagLang = Jsoup.parse(html).select("html").first();
-        String language = tagLang.attr("lang");
-        if (language != null && language.isEmpty()) {
-            language = tagLang.attr("xml:lang");
-        }
-
-        return language;
-    }
-	
 	private void addInactiveSites(HtmlParseData htmlParseData,
 			DataBean bean) {
 		urlsNotActive.add(htmlParseData.getUrl());

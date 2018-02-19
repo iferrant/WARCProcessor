@@ -8,7 +8,7 @@ public class DataBean {
 	private String url;
 	private boolean spam;
 	private String typeDS = "";
-	private String language;
+	private String contentType;
 	private DataSourceConfig dsConfig;
 	
 	public DataBean() {}
@@ -57,12 +57,12 @@ public class DataBean {
 		this.typeDS = typeDS;
 	}
 
-	public String getLanguage() {
-		return language;
+	public String getContentType() {
+		return contentType;
 	}
 
-	public void setLanguage(String language) {
-		this.language = language;
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
 	}
 
 	public DataSourceConfig getDsConfig() {

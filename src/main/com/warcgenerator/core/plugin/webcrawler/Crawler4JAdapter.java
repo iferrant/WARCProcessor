@@ -347,6 +347,7 @@ public class Crawler4JAdapter extends WebCrawler implements IWebCrawler {
 
 			parseData.setHtml(html);
 			parseData.setText(text);
+			parseData.setContentType(page.getContentType());
 
 			logger.info("Text length: " + text.length());
 			logger.info("Html length: " + html.length());

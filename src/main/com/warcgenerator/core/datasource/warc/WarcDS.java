@@ -30,6 +30,8 @@ import com.warcgenerator.core.exception.datasource.CloseException;
 import com.warcgenerator.core.exception.datasource.DSException;
 import com.warcgenerator.core.exception.datasource.OpenException;
 import com.warcgenerator.core.exception.datasource.WriteException;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
 
 public class WarcDS extends DataSource implements IDataSource {
 	public static final String DS_TYPE = "WarcDS";
@@ -202,13 +204,12 @@ public class WarcDS extends DataSource implements IDataSource {
 					is = new ByteArrayInputStream((byte[]) bean.getData());
 				}
 
+				String pageLanguage = getPageLanguage(String.valueOf(bean.getData()));
 				ANVLRecord headers = new ANVLRecord(1);
-				if (bean.getLanguage() != null && !bean.getLanguage().isEmpty()) {
-                    headers.addLabelValue("WARC-language", bean.getLanguage());
-                }
+				headers.addLabelValue("WARC-language", pageLanguage);
 				writer.writeResponseRecord(bean.getUrl(),
 						ArchiveUtils.get14DigitDate(),
-						bean.getTypeDS(),
+						bean.getContentType(),
 						new URI(bean.getUrl()),
 						headers,
 						is,
@@ -216,9 +217,7 @@ public class WarcDS extends DataSource implements IDataSource {
 				is.close();
 
 				// The condition is duplicated because is need it
-                if (bean.getLanguage() != null && !bean.getLanguage().isEmpty()) {
-                    writeHeader(HEADER_WARC_LANGUAGES, bean.getLanguage());
-                }
+				writeHeader(HEADER_WARC_LANGUAGES, pageLanguage);
 			} catch (IOException e) {
 				e.printStackTrace();
 				throw new WriteException(e);
@@ -245,6 +244,23 @@ public class WarcDS extends DataSource implements IDataSource {
 		}
 	}
 
+	/**
+	 * Parse and retrieve the page language based on the
+	 * "lang" or "xml:lang" attribute of the first html tag
+	 *
+	 * @param html HTML of the page in String format
+	 * @return Language of the page
+	 */
+	private String getPageLanguage(String html) {
+		Element tagLang = Jsoup.parse(html).select("html").first();
+		String language = tagLang.attr("lang");
+		if (language != null && language.isEmpty()) {
+			language = tagLang.attr("xml:lang");
+		}
+
+		return language;
+	}
+
     /**
      * Write header on the WARC file
      *
@@ -267,7 +283,7 @@ public class WarcDS extends DataSource implements IDataSource {
             file.close();
 
             // Retrieve the languages that already exist on the file
-            String aux = inputStr.split(HEADER_WARC_LANGUAGES)[1];
+            String aux = inputStr.split(name)[1];
             String languagesToSplit = aux.substring(0, aux.indexOf('\n'));
             // Create a Set to avoid {@param name} repeated
             Set<String> languagesSet = new HashSet<>(Arrays.asList(languagesToSplit.trim().split(" ")));
