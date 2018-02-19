@@ -11,6 +11,10 @@ public class StringUtil {
             builder.append(item);
             builder.append(separator);
         }
+        if (builder.length() > 1) {
+            // Remove last separator
+            builder.deleteCharAt(builder.length()-1);
+        }
 
         return builder.toString();
     }

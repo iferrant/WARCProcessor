@@ -38,6 +38,7 @@ public class WarcDS extends DataSource implements IDataSource {
 	public static final String URL_TAG = "WarcURLTag";
 	public static final String REGEXP_URL_TAG = "RegExpURLAttribute";
 	private static final String HEADER_WARC_LANGUAGES = "WARC-All-Languages:";
+    private static final String HEADER_WARC_CONTENT_TYPES = "WARC-All-Content_types:";
 
 	@SuppressWarnings("unused")
 	private OutputWarcConfig config;
@@ -87,6 +88,7 @@ public class WarcDS extends DataSource implements IDataSource {
 
 			List<String> metadata = new ArrayList<>();
 			metadata.add(HEADER_WARC_LANGUAGES);
+            metadata.add('\n'+HEADER_WARC_CONTENT_TYPES);
 
 			writer = new WARCWriter(new AtomicInteger(), bos, warc,
 					getSettings(false, "", null, metadata));
@@ -216,8 +218,9 @@ public class WarcDS extends DataSource implements IDataSource {
 						is.available());
 				is.close();
 
-				// The condition is duplicated because is need it
+				// This header tags have to be added when the WARC file is created
 				writeHeader(HEADER_WARC_LANGUAGES, pageLanguage);
+                writeHeader(HEADER_WARC_CONTENT_TYPES, bean.getContentType());
 			} catch (IOException e) {
 				e.printStackTrace();
 				throw new WriteException(e);
@@ -282,16 +285,21 @@ public class WarcDS extends DataSource implements IDataSource {
 
             file.close();
 
-            // Retrieve the languages that already exist on the file
-            String aux = inputStr.split(name)[1];
-            String languagesToSplit = aux.substring(0, aux.indexOf('\n'));
-            // Create a Set to avoid {@param name} repeated
-            Set<String> languagesSet = new HashSet<>(Arrays.asList(languagesToSplit.trim().split(" ")));
-            languagesSet.add(value);
-            // Create a String with the {@param name} values of the WARC file
-            String languages = StringUtil.collectionToString(languagesSet, " ");
-            inputStr = inputStr.replaceFirst("(?m)^"+name+".*$", name + " " + languages);
-
+            // Retrieve the values that already exist for this header
+            String[] aux = inputStr.split(name);
+            if (aux.length >= 1) {
+                String languagesToSplit = aux[1].substring(0, aux[1].indexOf('\n'));
+                // Create a Set to avoid repeated values
+                String separator = ",";
+                Set<String> languagesSet = new HashSet<>();
+                if (!languagesToSplit.isEmpty()) {
+                    languagesSet.addAll(Arrays.asList(languagesToSplit.trim().split(separator)));
+                }
+                languagesSet.add(value);
+                // Create a String with the header values of the WARC file
+                String languages = StringUtil.collectionToString(languagesSet, separator);
+                inputStr = inputStr.replaceFirst("(?m)^" + name + ".*$", name + " " + languages);
+            }
             // write the new String with the replaced line OVER the same file
             FileOutputStream fileOut = new FileOutputStream(warc);
             fileOut.write(inputStr.getBytes());
