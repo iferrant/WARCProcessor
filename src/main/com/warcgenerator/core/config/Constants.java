@@ -12,7 +12,8 @@ public interface Constants {
 	String configSchemaFilePath = "/config/schema/config.xsd";
 	String defaultConfigXML= "/config/config.xml";
 	String dataSourcesTypesXML= "/config/datasources.xml";
-	
+	String corpusConfigFile= "corpus_config.xml";
+
 	public interface AppConfigConstants {
 		String CORPUS_DIR_PATH_DEFAULT = ".\\out";
 		String SPAM_DIR_NAME_DEFAULT = "_spam_";
