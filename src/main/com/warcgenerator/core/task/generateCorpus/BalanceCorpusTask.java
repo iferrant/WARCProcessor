@@ -165,7 +165,7 @@ public class BalanceCorpusTask extends Task implements ITask{
      */
     private void saveConfigFileCopy() {
         File source = new File(ConfigHelper.getConfigFilePath());
-        File dest = new File(appConfig.getOutputDir() + Constants.corpusConfigFile);
+        File dest = new File(appConfig.getOutputDir() + File.separator + Constants.corpusConfigFile);
 
         try {
             Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);

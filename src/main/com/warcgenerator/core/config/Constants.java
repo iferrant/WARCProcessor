@@ -1,5 +1,7 @@
 package com.warcgenerator.core.config;
 
+import java.sql.Timestamp;
+
 /**
  * Store default values to appConfig parameters
  * @author Miguel Callon
@@ -16,6 +18,7 @@ public interface Constants {
 
 	public interface AppConfigConstants {
 		String CORPUS_DIR_PATH_DEFAULT = ".\\out";
+		String CORPUS_DIR_NAME_DEFAULT = "corpus_" + new Timestamp(System.currentTimeMillis()).getTime();
 		String SPAM_DIR_NAME_DEFAULT = "_spam_";
 		String HAM_DIR_NAME_DEFAULT = "_ham_";
 		String DOMAINS_LABELED_FILE_NAME_DEFAULT = "domains.labelled";

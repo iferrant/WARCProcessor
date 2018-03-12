@@ -19,6 +19,7 @@ public class AppConfig {
 	private Map<Integer, DataSourceConfig> dataSourceConfigs;
 	private WebCrawlerConfig webCrawlerCfgTemplate;
 	private String corpusDirPath;
+	private String corpusDirName;
 	private String spamDirName;
 	private String hamDirName;
 	private String domainsLabeledFileName;
@@ -48,6 +49,8 @@ public class AppConfig {
 	public void init() {
 		corpusDirPath = Validator.isNullOrEmpty(corpusDirPath)?
 				Constants.AppConfigConstants.CORPUS_DIR_PATH_DEFAULT:corpusDirPath;
+		corpusDirName = Validator.isNullOrEmpty(corpusDirName)?
+				Constants.AppConfigConstants.CORPUS_DIR_NAME_DEFAULT:corpusDirName;
 		spamDirName = Validator.isNullOrEmpty(spamDirName)?
 				Constants.AppConfigConstants.SPAM_DIR_NAME_DEFAULT:spamDirName;
 		hamDirName = Validator.isNullOrEmpty(hamDirName)?
@@ -132,13 +135,14 @@ public class AppConfig {
 	public void resetOutputConfig() {
 		// Configure filepaths
 		String pathCorpus = this.corpusDirPath;
-		String pathSpam = pathCorpus + File.separator + this.spamDirName;
-		String pathHam = pathCorpus + File.separator + this.hamDirName;
-		String pathDomainsLabelled = pathCorpus + File.separator
+		String corpusDirName = pathCorpus + File.separator + this.corpusDirName;
+		String pathSpam = corpusDirName + File.separator + this.spamDirName;
+		String pathHam = corpusDirName + File.separator + this.hamDirName;
+		String pathDomainsLabelled = corpusDirName + File.separator
 				+ this.domainsLabeledFileName;
-		String pathDomainsNotFound = pathCorpus + File.separator
+		String pathDomainsNotFound = corpusDirName + File.separator
 						+ this.domainsNotFoundFileName;
-		setOutputConfig(new OutputCorpusConfig(pathCorpus, pathSpam, pathHam,
+		setOutputConfig(new OutputCorpusConfig(pathCorpus, corpusDirName, pathSpam, pathHam,
 						pathDomainsLabelled, pathDomainsNotFound));
 	}
 
@@ -157,7 +161,15 @@ public class AppConfig {
 	public void setWebCrawlerCfgTemplate(WebCrawlerConfig webCrawlerCfgTemplate) {
 		this.webCrawlerCfgTemplate = webCrawlerCfgTemplate;
 	}
-	
+
+	public String getCorpusDirName() {
+		return corpusDirName;
+	}
+
+	public void setCorpusDirName(String corpusDirName) {
+		this.corpusDirName = corpusDirName;
+	}
+
 	public String getSpamDirName() {
 		return spamDirName;
 	}
