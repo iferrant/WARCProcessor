@@ -37,6 +37,7 @@ public class OutputConfigPanel extends CustomJPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 	private JFormattedTextField outputDirTField;
+    private JFormattedTextField corpusDirTField;
 	private JFormattedTextField spamDirTField;
 	private JFormattedTextField hamDirTField;
 	private CustomCheckBox chckbxEliminarLaSalida;
@@ -217,6 +218,32 @@ public class OutputConfigPanel extends CustomJPanel {
 		gbc_examineBtn.gridy = 1;
 		panel_2.add(examineBtn, gbc_examineBtn);
 
+        CustomLabel lblCorpusDir = new CustomLabel();
+        lblCorpusDir.setName("OutputConfigPanel.lblCorpusDir.text");
+        view.addLocaleChangeListener(lblCorpusDir);
+        lblCorpusDir.setHorizontalAlignment(SwingConstants.RIGHT);
+        GridBagConstraints gbc_lblCorpusDir = new GridBagConstraints();
+        gbc_lblCorpusDir.fill = GridBagConstraints.BOTH;
+        gbc_lblCorpusDir.insets = new Insets(0, 0, 5, 5);
+        gbc_lblCorpusDir.gridx = 0;
+        gbc_lblCorpusDir.gridy = 2;
+        panel_2.add(lblCorpusDir, gbc_lblCorpusDir);
+
+        corpusDirTField = new JFormattedTextField("");
+
+        NotNullOREmptyValidator corpusValidator = new NotNullOREmptyValidator(
+                view.getMainFrame(), corpusDirTField,
+                "OutputConfigPanel.corpusDirTField.verifier.text");
+        corpusDirTField.setInputVerifier(corpusValidator);
+        view.addLocaleChangeListener(corpusValidator);
+        corpusDirTField.setColumns(10);
+        GridBagConstraints gbc_corpusDirTField = new GridBagConstraints();
+        gbc_corpusDirTField.fill = GridBagConstraints.BOTH;
+        gbc_corpusDirTField.insets = new Insets(0, 0, 5, 5);
+        gbc_corpusDirTField.gridx = 1;
+        gbc_corpusDirTField.gridy = 2;
+        panel_2.add(corpusDirTField, gbc_corpusDirTField);
+
 		CustomLabel lblNewLabel_2 = new CustomLabel();
 		lblNewLabel_2.setName("OutputConfigPanel.lblNewLabel_2.text"); //$NON-NLS-1$
 		view.addLocaleChangeListener(lblNewLabel_2);
@@ -225,7 +252,7 @@ public class OutputConfigPanel extends CustomJPanel {
 		gbc_lblNewLabel_2.fill = GridBagConstraints.BOTH;
 		gbc_lblNewLabel_2.insets = new Insets(0, 0, 5, 5);
 		gbc_lblNewLabel_2.gridx = 0;
-		gbc_lblNewLabel_2.gridy = 2;
+		gbc_lblNewLabel_2.gridy = 3;
 		panel_2.add(lblNewLabel_2, gbc_lblNewLabel_2);
 
 		spamDirTField = new JFormattedTextField("");
@@ -240,7 +267,7 @@ public class OutputConfigPanel extends CustomJPanel {
 		gbc_spamDirTField.fill = GridBagConstraints.BOTH;
 		gbc_spamDirTField.insets = new Insets(0, 0, 5, 5);
 		gbc_spamDirTField.gridx = 1;
-		gbc_spamDirTField.gridy = 2;
+		gbc_spamDirTField.gridy = 3;
 		panel_2.add(spamDirTField, gbc_spamDirTField);
 
 		CustomLabel lblHam = new CustomLabel();
@@ -251,7 +278,7 @@ public class OutputConfigPanel extends CustomJPanel {
 		gbc_lblHam.fill = GridBagConstraints.BOTH;
 		gbc_lblHam.insets = new Insets(0, 0, 5, 5);
 		gbc_lblHam.gridx = 0;
-		gbc_lblHam.gridy = 3;
+		gbc_lblHam.gridy = 4;
 		panel_2.add(lblHam, gbc_lblHam);
 
 		hamDirTField = new JFormattedTextField("");
@@ -266,7 +293,7 @@ public class OutputConfigPanel extends CustomJPanel {
 		gbc_hamDirTField.fill = GridBagConstraints.BOTH;
 		gbc_hamDirTField.insets = new Insets(0, 0, 5, 5);
 		gbc_hamDirTField.gridx = 1;
-		gbc_hamDirTField.gridy = 3;
+		gbc_hamDirTField.gridy = 4;
 		panel_2.add(hamDirTField, gbc_hamDirTField);
 
 		chckbxEliminarLaSalida = new CustomCheckBox();
@@ -279,7 +306,7 @@ public class OutputConfigPanel extends CustomJPanel {
 		gbc_chckbxEliminarLaSalida.gridwidth = 3;
 		gbc_chckbxEliminarLaSalida.fill = GridBagConstraints.BOTH;
 		gbc_chckbxEliminarLaSalida.gridx = 0;
-		gbc_chckbxEliminarLaSalida.gridy = 4;
+		gbc_chckbxEliminarLaSalida.gridy = 5;
 		panel_2.add(chckbxEliminarLaSalida, gbc_chckbxEliminarLaSalida);
 
 	}
