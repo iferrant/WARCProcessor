@@ -18,7 +18,7 @@ public interface Constants {
 	String corpusConfigFile= "corpus_config.xml";
 
 	public interface AppConfigConstants {
-		String CORPUS_DIR_PATH_DEFAULT = File.separator + "RESULT";
+		String CORPUS_DIR_PATH_DEFAULT = "RESULT";
 		String CORPUS_DIR_NAME_DEFAULT = "corpus_" + new Timestamp(System.currentTimeMillis()).getTime();
 		String SPAM_DIR_NAME_DEFAULT = "_spam_";
 		String HAM_DIR_NAME_DEFAULT = "_ham_";
