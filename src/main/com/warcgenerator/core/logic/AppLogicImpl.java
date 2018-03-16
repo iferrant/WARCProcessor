@@ -373,9 +373,9 @@ public class AppLogicImpl extends AppLogic implements IAppLogic {
 
 			// Generate wars
             spamDS = new GenericDS(new DataSourceConfig(
-                    outputCorpusConfig.getSpamDir() + ".txt"));
+                    outputCorpusConfig.getOutputDir() + config.getSpamDirName() + ".txt"));
             hamDS = new GenericDS(new DataSourceConfig(
-                    outputCorpusConfig.getHamDir() + ".txt"));
+                    outputCorpusConfig.getOutputDir() + config.getHamDirName() + ".txt"));
 			labeledDS = new GenericDS(new DataSourceConfig(
 					outputCorpusConfig.getDomainsLabeledFilePath()));
 			notFoundDS = new GenericDS(new DataSourceConfig(

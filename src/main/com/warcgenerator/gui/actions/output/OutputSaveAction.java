@@ -41,6 +41,7 @@ public class OutputSaveAction
 		appConfig.getOutputConfig().setOutputDir(
 				panel.getOutputDirTField().getText());
 		appConfig.setCorpusDirPath(panel.getOutputDirTField().getText());
+		appConfig.setCorpusDirName(panel.getCorpusDirTField().getText());
 		appConfig.setSpamDirName(panel.getSpamDirTField().getText());
 		appConfig.setHamDirName(panel.getHamDirTField().getText());
 		appConfig.setFlushOutputDir(panel.getChckbxEliminarLaSalida().isSelected());

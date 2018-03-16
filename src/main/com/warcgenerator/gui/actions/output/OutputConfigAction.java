@@ -37,6 +37,7 @@ public class OutputConfigAction extends CustomAction {
 
 		configPanel.getOutputDirTField().setValue(
 				config.getOutputConfig().getOutputDir());
+		configPanel.getCorpusDirTField().setValue(config.getCorpusDirName());
 		configPanel.getSpamDirTField().setValue(config.getSpamDirName());
 		configPanel.getHamDirTField().setValue(config.getHamDirName());
 		configPanel.getChckbxEliminarLaSalida().setSelected(

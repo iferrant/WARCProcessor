@@ -1,6 +1,5 @@
 package com.warcgenerator.core.config;
 
-import java.io.File;
 
 /**
  * File with the output corpus configuration
@@ -27,11 +26,6 @@ public class OutputCorpusConfig extends OutputConfig {
 		this.hamDir = hamDir;
 		this.domainsLabeledFilePath = domainsLabeledFileName;
 		this.domainsNotFoundFilePath = domainsNotFoundFilePath;
-	}
-
-	@Override
-	public String getOutputDir() {
-		return getCorpusDir();
 	}
 
 	public String getCorpusDir() {

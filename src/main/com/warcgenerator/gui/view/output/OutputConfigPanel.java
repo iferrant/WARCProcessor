@@ -27,7 +27,6 @@ import com.warcgenerator.gui.components.CustomButton;
 import com.warcgenerator.gui.components.CustomCheckBox;
 import com.warcgenerator.gui.components.CustomJPanel;
 import com.warcgenerator.gui.components.CustomLabel;
-import com.warcgenerator.gui.util.Messages;
 import com.warcgenerator.gui.view.WarcGeneratorGUI;
 import com.warcgenerator.gui.view.common.validator.NotNullOREmptyValidator;
 
@@ -315,7 +314,11 @@ public class OutputConfigPanel extends CustomJPanel {
 		return outputDirTField;
 	}
 
-	public JFormattedTextField getSpamDirTField() {
+    public JFormattedTextField getCorpusDirTField() {
+        return corpusDirTField;
+    }
+
+    public JFormattedTextField getSpamDirTField() {
 		return spamDirTField;
 	}
 

@@ -309,6 +309,7 @@ public class AppConfig {
 	public String toString() {
 		StringBuilder sb = new StringBuilder("-- AppConfig -- \n");
 		sb.append("corpusDirPath:  ").append(corpusDirPath).append("\n");
+		sb.append("corpusDirName:  ").append(corpusDirName).append("\n");
 		sb.append("spamDirName:  ").append(spamDirName).append("\n");
 		sb.append("hamDirName:  ").append(hamDirName).append("\n");
 		sb.append("domainsLabeledFileName:  ").append(domainsLabeledFileName)
