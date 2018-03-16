@@ -1,5 +1,6 @@
 package com.warcgenerator.core.logic;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -359,6 +360,7 @@ public class AppLogicImpl extends AppLogic implements IAppLogic {
 		try {
 			// Corpus Path dirs
 			String dirs[] = { outputCorpusConfig.getOutputDir(),
+					outputCorpusConfig.getCorpusDir(),
 					outputCorpusConfig.getSpamDir(),
 					outputCorpusConfig.getHamDir() };
 			// Delete directories
@@ -373,9 +375,9 @@ public class AppLogicImpl extends AppLogic implements IAppLogic {
 
 			// Generate wars
             spamDS = new GenericDS(new DataSourceConfig(
-                    outputCorpusConfig.getOutputDir() + config.getSpamDirName() + ".txt"));
+                    outputCorpusConfig.getCorpusDir() + File.separator + config.getSpamDirName() + ".txt"));
             hamDS = new GenericDS(new DataSourceConfig(
-                    outputCorpusConfig.getOutputDir() + config.getHamDirName() + ".txt"));
+                    outputCorpusConfig.getCorpusDir() + File.separator + config.getHamDirName() + ".txt"));
 			labeledDS = new GenericDS(new DataSourceConfig(
 					outputCorpusConfig.getDomainsLabeledFilePath()));
 			notFoundDS = new GenericDS(new DataSourceConfig(

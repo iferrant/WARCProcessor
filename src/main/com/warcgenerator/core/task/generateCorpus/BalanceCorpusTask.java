@@ -1,7 +1,7 @@
 package com.warcgenerator.core.task.generateCorpus;
 
 import com.warcgenerator.core.config.Constants;
-import com.warcgenerator.core.config.OutputConfig;
+import com.warcgenerator.core.config.OutputCorpusConfig;
 import com.warcgenerator.core.datasource.IDataSource;
 import com.warcgenerator.core.helper.ConfigHelper;
 import com.warcgenerator.core.task.ITask;
@@ -23,16 +23,16 @@ public class BalanceCorpusTask extends Task implements ITask{
     private int percentageHam;
     private int linesSpam = 0;
     private int linesHam = 0;
-    private OutputConfig appConfig;
+    private OutputCorpusConfig outputCorpusConfig;
 
     private static Logger logger = Logger.getLogger(BalanceCorpusTask.class);
 
-    public BalanceCorpusTask(OutputConfig appConfig, IDataSource spamDS, IDataSource hamDS, int percentageSpam) {
+    public BalanceCorpusTask(OutputCorpusConfig outputCorpusConfig, IDataSource spamDS, IDataSource hamDS, int percentageSpam) {
         this.spamDS = spamDS;
         this.hamDS = hamDS;
         this.percentageSpam = percentageSpam;
         this.percentageHam = 100 - percentageSpam;
-        this.appConfig = appConfig;
+        this.outputCorpusConfig = outputCorpusConfig;
     }
 
     public void execute() {
@@ -165,7 +165,7 @@ public class BalanceCorpusTask extends Task implements ITask{
      */
     private void saveConfigFileCopy() {
         File source = new File(ConfigHelper.getConfigFilePath());
-        File dest = new File(appConfig.getOutputDir() + File.separator + Constants.corpusConfigFile);
+        File dest = new File(outputCorpusConfig.getCorpusDir() + File.separator + Constants.corpusConfigFile);
 
         try {
             Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
