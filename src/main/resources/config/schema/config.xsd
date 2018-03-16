@@ -29,6 +29,8 @@ Schema for WarcGenerator XML Configuration
 	      </xs:element>
 	      <!-- Output folder -->
 	      <xs:element name="corpusDirPath" type="xs:string" minOccurs="1" maxOccurs="1"/>
+          <!-- Output folder to save the corpus (with the spam/ham inside) -->
+          <xs:element name="corpusDirName" type="xs:string" minOccurs="1" maxOccurs="1"/>
 	      <!-- Output folder to save warc files with spam contents  -->
 	      <xs:element name="spamDirName" type="xs:string" minOccurs="1" maxOccurs="1"/>
 	      <!-- Output folder to save warc files with ham contents  -->

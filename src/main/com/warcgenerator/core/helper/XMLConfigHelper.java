@@ -131,6 +131,7 @@ public class XMLConfigHelper {
 			}
 
 			config.setCorpusDirPath(getValueFromElement(doc, "corpusDirPath"));
+			config.setCorpusDirName(getValueFromElement(doc, "corpusDirName"));
 			config.setSpamDirName(getValueFromElement(doc, "spamDirName"));
 			config.setHamDirName(getValueFromElement(doc, "hamDirName"));
 			config.setDomainsLabeledFileName(getValueFromElement(doc,
@@ -414,8 +415,12 @@ public class XMLConfigHelper {
 			}
 
 			Element corpusDirPath = doc.createElement("corpusDirPath");
-			corpusDirPath.setTextContent(config.getCorpusDirPath());
+			corpusDirPath.setTextContent(config.getOutputConfig().getOutputDir());
 			rootElement.appendChild(corpusDirPath);
+
+			Element corpusDirName = doc.createElement("corpusDirName");
+			corpusDirName.setTextContent(config.getCorpusDirName());
+			rootElement.appendChild(corpusDirName);
 
 			Element spamDirName = doc.createElement("spamDirName");
 			spamDirName.setTextContent(config.getSpamDirName());
