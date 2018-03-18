@@ -7,3 +7,4 @@
 .idea/*
 warcgenerator.log
 WARCProcessor.iml
+**.DS_Store
