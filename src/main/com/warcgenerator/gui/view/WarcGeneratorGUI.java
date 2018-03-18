@@ -62,6 +62,7 @@ import com.warcgenerator.gui.actions.general.GeneralConfigAction;
 import com.warcgenerator.gui.actions.generate.GenerateCorpusAction;
 import com.warcgenerator.gui.actions.other.OtherConfigAction;
 import com.warcgenerator.gui.actions.output.OutputConfigAction;
+import com.warcgenerator.gui.actions.upload.UploadCorpusAction;
 import com.warcgenerator.gui.common.Constants;
 import com.warcgenerator.gui.common.Session;
 import com.warcgenerator.gui.components.CustomButton;
@@ -89,6 +90,7 @@ public class WarcGeneratorGUI extends Observable {
 
 	private Action assistantCreateDSAction;
 	private Action generateCorpusAction;
+    private Action uploadCorpusAction;
 	private Action openOutputFolderAction;
 	private OutputConfigAction outputConfigAction;
 	private OtherConfigAction otherConfigAction;
@@ -161,6 +163,7 @@ public class WarcGeneratorGUI extends Observable {
 
 		assistantCreateDSAction = new DSAsisstantCreateAction(logic, this);
 		generateCorpusAction = new GenerateCorpusAction(logic, this);
+        uploadCorpusAction = new UploadCorpusAction(logic, this);
 		openOutputFolderAction = new OpenOutputFolderAction(logic, this);
 		generalConfigAction = new GeneralConfigAction(logic, this,
 				generalConfigPanel);
@@ -412,6 +415,25 @@ public class WarcGeneratorGUI extends Observable {
 			}
 		});
 		menuBar.add(mnOpenOutputFolder);
+
+        CustomButton mnUploadCorpus = new CustomButton();
+        mnUploadCorpus.setName("WarcGeneratorGUI.mnUploadCorpus.text");
+        addLocaleChangeListener(mnUploadCorpus);
+        mnUploadCorpus.setMinimumSize(new Dimension(90, 26));
+        mnUploadCorpus.setIcon(new ImageIcon(WarcGeneratorGUI.class
+                .getResource("/com/warcgenerator/gui/resources/img/upload.png")));
+        mnUploadCorpus.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        mnUploadCorpus.setHorizontalAlignment(SwingConstants.LEFT);
+        mnUploadCorpus.setMnemonic('U');
+        mnUploadCorpus.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                uploadCorpusAction.actionPerformed(e);
+            }
+        });
+        menuBar.add(mnUploadCorpus);
+
 
 		CustomButton mnGenerarCorpus = new CustomButton();
 		mnGenerarCorpus.setName("WarcGeneratorGUI.mnGenerarCorpus.text");
