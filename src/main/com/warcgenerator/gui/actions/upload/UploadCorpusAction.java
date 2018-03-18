@@ -20,5 +20,8 @@ public class UploadCorpusAction extends AbstractAction{
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        loginDialog = new LoginDialog(view);
+        view.updateUI();
+        loginDialog.setVisible(true);
     }
 }
