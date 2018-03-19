@@ -3,7 +3,9 @@ package com.warcgenerator.core.rest.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- * Representation class that defines a User object used to retrieve a valid token
+ * Representation class that defines a User object used to retrieve a valid token.
+ * This object would be saved on memory to store the user credentials, but
+ * it wouldn't be saved in any configuration file for security reasons.
  *
  * @JsonIgnoreProperties annotation is used to mark a property
  * or a list of properties to be ignored at the class level.
@@ -14,17 +16,29 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class User {
     private String email;
     private String password;
-
-    public User(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
+    private String token;
 
     public String getEmail() {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getPassword() {
         return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

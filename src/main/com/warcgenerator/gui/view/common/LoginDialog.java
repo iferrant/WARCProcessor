@@ -1,5 +1,6 @@
 package com.warcgenerator.gui.view.common;
 
+import com.warcgenerator.AppWarc;
 import com.warcgenerator.gui.components.CustomButton;
 import com.warcgenerator.gui.components.CustomJDialog;
 import com.warcgenerator.gui.components.CustomLabel;
@@ -15,6 +16,8 @@ import java.awt.event.ActionListener;
  * Dialog to introduce the user credentials
  */
 public class LoginDialog extends CustomJDialog{
+    private static final String DEFAULT_USER = "demo";
+    private static final String DEFAULT_PASSWORD = "demo";
     private JFormattedTextField userEmail;
     private JPasswordField userPassword;
 
@@ -32,6 +35,8 @@ public class LoginDialog extends CustomJDialog{
         acceptBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Request token
+                AppWarc.userGlobal.setEmail(userEmail.getValue().toString());
+                AppWarc.userGlobal.setPassword(new String(userPassword.getPassword()));
             }
         });
 
@@ -65,7 +70,9 @@ public class LoginDialog extends CustomJDialog{
         gbc_lblUserEmail.gridy = 0;
         panel_2.add(lblUserEmail, gbc_lblUserEmail);
 
-        userEmail = new JFormattedTextField("");
+        String userDefaultEmail =
+                AppWarc.userGlobal.getEmail() != null? AppWarc.userGlobal.getEmail(): DEFAULT_USER;
+        userEmail = new JFormattedTextField(userDefaultEmail);
         userEmail.setEditable(true);
         userEmail.setColumns(16);
         GridBagConstraints gbc_userEmail = new GridBagConstraints();
@@ -86,7 +93,9 @@ public class LoginDialog extends CustomJDialog{
         gbc_lblUserPassword.gridy = 1;
         panel_2.add(lblUserPassword, gbc_lblUserPassword);
 
-        userPassword = new JPasswordField("");
+        String userDefaultPass =
+                AppWarc.userGlobal.getPassword() != null? AppWarc.userGlobal.getPassword(): DEFAULT_PASSWORD;
+        userPassword = new JPasswordField(userDefaultPass);
         userPassword.setEditable(true);
         userPassword.setColumns(16);
         GridBagConstraints gbc_userPassword = new GridBagConstraints();
