@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class User {
     private String email;
     private String password;
-    private String token;
+    private Token token;
 
     public String getEmail() {
         return email;
@@ -34,11 +34,11 @@ public class User {
         this.password = password;
     }
 
-    public String getToken() {
+    public Token getToken() {
         return token;
     }
 
-    public void setToken(String token) {
+    public void setToken(Token token) {
         this.token = token;
     }
 }

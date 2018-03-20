@@ -56,7 +56,7 @@ public class ServerRequestService {
                 .path(CORPUS)
                 .request(MediaType.APPLICATION_FORM_URLENCODED_TYPE)
                 .header("Content-Type", "application/x-www-form-urlencoded")
-                .header("Authorization", "Bearer " + AppWarc.userGlobal.getToken())
+                .header("Authorization", "Bearer " + AppWarc.userGlobal.getToken().getToken())
                 .post(Entity.entity(multipart, multipart.getMediaType()))
         .getStatusInfo().toString();
         System.out.println("HTTP status response: " +status);

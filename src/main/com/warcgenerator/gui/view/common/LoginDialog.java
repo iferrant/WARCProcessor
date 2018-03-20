@@ -1,6 +1,8 @@
 package com.warcgenerator.gui.view.common;
 
 import com.warcgenerator.AppWarc;
+import com.warcgenerator.core.rest.ServerRequestService;
+import com.warcgenerator.core.rest.models.Token;
 import com.warcgenerator.gui.components.CustomButton;
 import com.warcgenerator.gui.components.CustomJDialog;
 import com.warcgenerator.gui.components.CustomLabel;
@@ -9,8 +11,6 @@ import com.warcgenerator.gui.view.WarcGeneratorGUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * Dialog to introduce the user credentials
@@ -32,13 +32,7 @@ public class LoginDialog extends CustomJDialog{
         CustomButton acceptBtn = new CustomButton();
         acceptBtn.setName("LoginDialog.btnAccept.text");
         view.addLocaleChangeListener(acceptBtn);
-        acceptBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                // Request token
-                AppWarc.userGlobal.setEmail(userEmail.getValue().toString());
-                AppWarc.userGlobal.setPassword(new String(userPassword.getPassword()));
-            }
-        });
+        acceptBtn.addActionListener(actionEvent -> loginUser());
 
         JPanel panel_1 = new JPanel();
         FlowLayout flowLayout = (FlowLayout) panel_1.getLayout();
@@ -104,5 +98,16 @@ public class LoginDialog extends CustomJDialog{
         gbc_userPassword.gridx = 1;
         gbc_userPassword.gridy = 1;
         panel_2.add(userPassword, gbc_userPassword);
+    }
+
+    private void loginUser() {
+        ServerRequestService serverRequestService = new ServerRequestService();
+        Token token = serverRequestService.loginUser(AppWarc.userGlobal);
+
+        AppWarc.userGlobal.setToken(token);
+        AppWarc.userGlobal.setEmail(userEmail.getValue().toString());
+        AppWarc.userGlobal.setPassword(new String(userPassword.getPassword()));
+
+        System.out.println("User token: " + token.getToken());
     }
 }
