@@ -25,17 +25,22 @@ public class LoginAction extends AbstractAction {
         AppWarc.userGlobal.setEmail(loginDialog.getUserEmail().getValue().toString());
         AppWarc.userGlobal.setPassword(new String(loginDialog.getUserPassword().getPassword()));
 
+        loginDialog.loading(true);
+        loginDialog.showCredentialsError(false);
         ServerRequestService serverRequestService = new ServerRequestService();
         serverRequestService.loginUser(AppWarc.userGlobal, new RequestResponse<Token>() {
             @Override
             public void onRequestSuccess(Token response) {
                 AppWarc.userGlobal.setToken(response);
                 System.out.println("User token: " + response.getToken());
+                loginDialog.setVisible(false);
             }
 
             @Override
             public void onRequestFail(String error) {
                 System.err.println("ERROR: " + error);
+                loginDialog.loading(false);
+                loginDialog.showCredentialsError(true);
             }
         });
     }

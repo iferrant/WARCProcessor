@@ -103,11 +103,49 @@ public class LoginDialog extends CustomJDialog{
         gbc_userPassword.gridx = 1;
         gbc_userPassword.gridy = 1;
         panel_2.add(userPassword, gbc_userPassword);
+
+        lblWrongCredentials = new CustomLabel();
+        lblWrongCredentials.setName("LoginDialog.lblWrongCredentials.text");
+        lblWrongCredentials.setForeground(Color.RED);
+        view.addLocaleChangeListener(lblWrongCredentials);
+        lblWrongCredentials.setHorizontalAlignment(SwingConstants.RIGHT);
+        lblWrongCredentials.setVisible(false);
+        GridBagConstraints gbc_lblWrongCredentials = new GridBagConstraints();
+        gbc_lblWrongCredentials.fill = GridBagConstraints.BOTH;
+        gbc_lblWrongCredentials.insets = new Insets(0, 0, 5, 5);
+        gbc_lblWrongCredentials.gridx = 1;
+        gbc_lblWrongCredentials.gridy = 2;
+        panel_2.add(lblWrongCredentials, gbc_lblWrongCredentials);
+
+        loadingLabel = new JLabel("");
+        loadingLabel
+                .setIcon(new ImageIcon(
+                        LoginDialog.class
+                                .getResource("/com/warcgenerator/gui/resources/img/imagen_gif.gif")));
+        GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
+        gbc_lblNewLabel.gridheight = 2;
+        gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
+        gbc_lblNewLabel.gridx = 1;
+        gbc_lblNewLabel.gridy = 1;
+        loadingLabel.setVisible(false);
+        panel_2.add(loadingLabel, gbc_lblNewLabel);
     }
 
-    private void loginUser() {
-        ServerRequestService serverRequestService = new ServerRequestService();
-        Token token = serverRequestService.loginUser(AppWarc.userGlobal);
+    /**
+     * Show/Hide the loading animation
+     * @param visibility True to show the loading animation
+     */
+    public void loading(Boolean visibility) {
+        userEmail.setVisible(!visibility);
+        userPassword.setVisible(!visibility);
+        lblUserEmail.setVisible(!visibility);
+        lblUserPassword.setVisible(!visibility);
+        loadingLabel.setVisible(visibility);
+    }
+
+    public void showCredentialsError(Boolean show) {
+        lblWrongCredentials.setVisible(show);
+    }
 
     public JFormattedTextField getUserEmail() {
         return userEmail;
