@@ -6,17 +6,19 @@ import com.warcgenerator.gui.view.common.LoginDialog;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class LoginAction extends AbstractAction {
+public class OpenLoginAction extends AbstractAction{
 
     private WarcGeneratorGUI view;
     private LoginDialog loginDialog;
 
-    public LoginAction(WarcGeneratorGUI view, LoginDialog loginDialog) {
+    public OpenLoginAction(WarcGeneratorGUI view) {
         this.view = view;
-        this.loginDialog = loginDialog;
     }
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
+        loginDialog = new LoginDialog(view);
+        view.updateUI();
+        loginDialog.setVisible(true);
     }
 }

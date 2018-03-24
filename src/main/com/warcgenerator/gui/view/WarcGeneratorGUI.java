@@ -159,7 +159,7 @@ public class WarcGeneratorGUI extends Observable {
 
 		assistantCreateDSAction = new DSAsisstantCreateAction(logic, this);
 		generateCorpusAction = new GenerateCorpusAction(logic, this);
-        loginAction = new LoginAction(this);
+        loginAction = new OpenLoginAction(this);
         uploadCorpusAction = new UploadCorpusAction(this);
 		openOutputFolderAction = new OpenOutputFolderAction(logic, this);
 		generalConfigAction = new GeneralConfigAction(logic, this,
