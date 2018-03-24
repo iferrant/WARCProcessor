@@ -1,5 +1,9 @@
 package com.warcgenerator.gui.actions.common;
 
+import com.warcgenerator.AppWarc;
+import com.warcgenerator.core.rest.RequestResponse;
+import com.warcgenerator.core.rest.ServerRequestService;
+import com.warcgenerator.core.rest.models.Token;
 import com.warcgenerator.gui.view.WarcGeneratorGUI;
 import com.warcgenerator.gui.view.common.LoginDialog;
 
@@ -18,5 +22,21 @@ public class LoginAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
+        AppWarc.userGlobal.setEmail(loginDialog.getUserEmail().getValue().toString());
+        AppWarc.userGlobal.setPassword(new String(loginDialog.getUserPassword().getPassword()));
+
+        ServerRequestService serverRequestService = new ServerRequestService();
+        serverRequestService.loginUser(AppWarc.userGlobal, new RequestResponse<Token>() {
+            @Override
+            public void onRequestSuccess(Token response) {
+                AppWarc.userGlobal.setToken(response);
+                System.out.println("User token: " + response.getToken());
+            }
+
+            @Override
+            public void onRequestFail(String error) {
+                System.err.println("ERROR: " + error);
+            }
+        });
     }
 }

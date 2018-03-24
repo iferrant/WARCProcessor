@@ -1,8 +1,7 @@
 package com.warcgenerator.gui.view.common;
 
 import com.warcgenerator.AppWarc;
-import com.warcgenerator.core.rest.ServerRequestService;
-import com.warcgenerator.core.rest.models.Token;
+import com.warcgenerator.gui.actions.common.LoginAction;
 import com.warcgenerator.gui.components.CustomButton;
 import com.warcgenerator.gui.components.CustomJDialog;
 import com.warcgenerator.gui.components.CustomLabel;
@@ -18,11 +17,17 @@ import java.awt.*;
 public class LoginDialog extends CustomJDialog{
     private static final String DEFAULT_USER = "demo";
     private static final String DEFAULT_PASSWORD = "demo";
+    private LoginAction loginAction;
     private JFormattedTextField userEmail;
     private JPasswordField userPassword;
+    private CustomLabel lblUserEmail;
+    private CustomLabel lblUserPassword;
+    private CustomLabel lblWrongCredentials;
+    private JLabel loadingLabel;
 
     public LoginDialog(WarcGeneratorGUI view) {
         super(view.getMainFrame(), true);
+        loginAction = new LoginAction(view, this);
 
         System.out.println(Messages.getString("LoginDialog.title.text"));
 
@@ -32,7 +37,7 @@ public class LoginDialog extends CustomJDialog{
         CustomButton acceptBtn = new CustomButton();
         acceptBtn.setName("LoginDialog.btnAccept.text");
         view.addLocaleChangeListener(acceptBtn);
-        acceptBtn.addActionListener(actionEvent -> loginUser());
+        acceptBtn.addActionListener(actionEvent -> loginAction.actionPerformed(actionEvent));
 
         JPanel panel_1 = new JPanel();
         FlowLayout flowLayout = (FlowLayout) panel_1.getLayout();
@@ -53,7 +58,7 @@ public class LoginDialog extends CustomJDialog{
         gbc_horizontalStrut.gridy = 0;
         panel_2.add(horizontalStrut, gbc_horizontalStrut);
 
-        CustomLabel lblUserEmail = new CustomLabel();
+        lblUserEmail = new CustomLabel();
         lblUserEmail.setName("LoginDialog.lblUserEmail.text");
         view.addLocaleChangeListener(lblUserEmail);
         lblUserEmail.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -76,7 +81,7 @@ public class LoginDialog extends CustomJDialog{
         gbc_userEmail.gridy = 0;
         panel_2.add(userEmail, gbc_userEmail);
 
-        CustomLabel lblUserPassword = new CustomLabel();
+        lblUserPassword = new CustomLabel();
         lblUserPassword.setName("LoginDialog.lblUserPassword.text");
         view.addLocaleChangeListener(lblUserPassword);
         lblUserPassword.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -104,10 +109,11 @@ public class LoginDialog extends CustomJDialog{
         ServerRequestService serverRequestService = new ServerRequestService();
         Token token = serverRequestService.loginUser(AppWarc.userGlobal);
 
-        AppWarc.userGlobal.setToken(token);
-        AppWarc.userGlobal.setEmail(userEmail.getValue().toString());
-        AppWarc.userGlobal.setPassword(new String(userPassword.getPassword()));
+    public JFormattedTextField getUserEmail() {
+        return userEmail;
+    }
 
-        System.out.println("User token: " + token.getToken());
+    public JPasswordField getUserPassword() {
+        return userPassword;
     }
 }
