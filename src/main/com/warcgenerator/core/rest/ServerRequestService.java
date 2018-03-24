@@ -12,7 +12,9 @@ import wiremock.com.jayway.jsonpath.spi.impl.JacksonProvider;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.File;
 
 public class ServerRequestService {
@@ -31,14 +33,29 @@ public class ServerRequestService {
      * @param user User to login
      * @return Valid token
      */
-    public Token loginUser(User user) {
-        return client
-                .register(JacksonProvider.class)
-                .target(API_URL)
-                .path(LOGIN)
-                .request(MediaType.APPLICATION_JSON)
-                .post(Entity.entity(user, MediaType.APPLICATION_JSON))
-                .readEntity(Token.class);
+    public void loginUser(User user, RequestResponse<Token> responseCallback) {
+         client
+                 .register(JacksonProvider.class)
+                 .target(API_URL)
+                 .path(LOGIN)
+                 .request(MediaType.APPLICATION_JSON)
+                 .async()
+                 .post(Entity.entity(user, MediaType.APPLICATION_JSON), new InvocationCallback<Response>() {
+                    @Override
+                    public void completed(Response response) {
+                        Token token = response.readEntity(Token.class);
+                        if (token != null && token.getToken() != null) {
+                            responseCallback.onRequestSuccess(token);
+                        } else {
+                            responseCallback.onRequestFail("Token is null");
+                        }
+                    }
+
+                    @Override
+                    public void failed(Throwable throwable) {
+                        responseCallback.onRequestFail(throwable.getMessage());
+                    }
+                 });
     }
 
     /**
