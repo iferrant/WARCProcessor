@@ -618,6 +618,9 @@ public class XMLConfigHelper {
             Transformer transformer = transformerFactory.newTransformer();
             DOMSource source = new DOMSource(doc);
 
+            // At the moment we are not to validate Scheme
+            validateSchema(doc, Constants.summarySchemaFilePath);
+
             // normalize text representation
             doc.getDocumentElement().normalize();
 
