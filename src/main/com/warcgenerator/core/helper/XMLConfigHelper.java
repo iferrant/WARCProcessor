@@ -575,6 +575,66 @@ public class XMLConfigHelper {
 		}
 	}
 
+    /**
+     * Generate the summary file to upload to the API in the corpus folder
+     * @param path Path of the corpus folder
+     * @param config {@link AppConfig} instance
+     */
+	public static void saveXmlCorpusSummary(String path, AppConfig config, int numSpamPages, int numHamPages) {
+        if (!FileHelper.checkIfExists(path)) {
+            throw new PathNotFoundAppConfigException();
+        }
+
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder;
+        Document doc = null;
+        try {
+            docBuilder = docFactory.newDocumentBuilder();
+            doc = docBuilder.newDocument();
+
+            // root elements
+            Element rootElement = doc.createElement("summary");
+            doc.appendChild(rootElement);
+
+            Element spamDir = doc.createElement("spamDir");
+            spamDir.setTextContent(config.getSpamDirName());
+            rootElement.appendChild(spamDir);
+
+            Element hamDir = doc.createElement("hamDir");
+            hamDir.setTextContent(config.getHamDirName());
+            rootElement.appendChild(hamDir);
+
+            Element spamPages = doc.createElement("numSpamPages");
+            spamPages.setTextContent(String.valueOf(numSpamPages));
+            rootElement.appendChild(spamPages);
+
+            Element hamPages = doc.createElement("numHamPages");
+            hamPages.setTextContent(String.valueOf(numHamPages));
+            rootElement.appendChild(hamPages);
+
+            // write the content into xml file
+            TransformerFactory transformerFactory = TransformerFactory
+                    .newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+
+            // normalize text representation
+            doc.getDocumentElement().normalize();
+
+            StreamResult result = new StreamResult(new File(path));
+            transformer.transform(source, result);
+
+        } catch (ParserConfigurationException e) {
+			e.printStackTrace();
+        } catch (TransformerConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
 	/**
 	 * Get value from first child node element
 	 * 
