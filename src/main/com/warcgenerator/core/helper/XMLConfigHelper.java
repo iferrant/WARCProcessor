@@ -1,6 +1,7 @@
 package com.warcgenerator.core.helper;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
@@ -22,6 +23,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
+import com.warcgenerator.core.config.*;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -31,10 +33,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import com.warcgenerator.core.config.AppConfig;
-import com.warcgenerator.core.config.Constants;
-import com.warcgenerator.core.config.CustomParamConfig;
-import com.warcgenerator.core.config.DataSourceConfig;
 import com.warcgenerator.core.datasource.common.bean.Country;
 import com.warcgenerator.core.exception.config.ConfigException;
 import com.warcgenerator.core.exception.config.PathNotFoundAppConfigException;
@@ -636,6 +634,42 @@ public class XMLConfigHelper {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+	/**
+	 * Parse the corpus summary file
+	 * @param path Path to the corpus summary file
+	 * @return {@link CorpusSummary} object with the corpus summary data
+	 */
+	public static CorpusSummary getCorpusSummary(String path) throws FileNotFoundException{
+        if (!new File(path).exists()) {
+            throw new FileNotFoundException();
+        }
+        try {
+            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory
+                    .newInstance();
+            DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+            Document doc = docBuilder.parse(new File(path));
+
+            // normalize text representation
+            doc.getDocumentElement().normalize();
+
+            String spamDir = doc.getElementsByTagName("spamDir").item(0).getTextContent();
+            String hamDir = doc.getElementsByTagName("hamDir").item(0).getTextContent();
+            String numSpamPages = doc.getElementsByTagName("numSpamPages").item(0).getTextContent();
+            String numHamPages = doc.getElementsByTagName("numHamPages").item(0).getTextContent();
+
+            return new CorpusSummary(
+                    spamDir,
+                    hamDir,
+                    Integer.valueOf(numSpamPages),
+                    Integer.valueOf(numHamPages));
+
+        } catch(ParserConfigurationException | IOException | SAXException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
 	/**
