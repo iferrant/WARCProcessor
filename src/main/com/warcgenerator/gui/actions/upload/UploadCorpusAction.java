@@ -6,6 +6,7 @@ import com.warcgenerator.core.helper.CorpusValidatorHelper;
 import com.warcgenerator.core.helper.XMLConfigHelper;
 import com.warcgenerator.core.rest.ServerRequestService;
 import com.warcgenerator.core.util.ZipUtils;
+import com.warcgenerator.gui.util.Messages;
 import com.warcgenerator.gui.view.WarcGeneratorGUI;
 
 import javax.swing.*;
@@ -29,7 +30,8 @@ public class UploadCorpusAction extends AbstractAction implements Observer {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-        int userSelection = fileChooser.showSaveDialog(view.getMainFrame());
+        int userSelection = fileChooser.showDialog(view.getMainFrame(),
+                Messages.getString("SelectCorpusFolder.uploadBtn.text"));
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToUpload = fileChooser.getSelectedFile().getAbsoluteFile();
             try {
