@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
+import com.warcgenerator.core.config.Constants;
 import com.warcgenerator.core.helper.XMLConfigHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -182,7 +183,7 @@ public class GenerateCorpusTask extends SwingWorker<Void, Integer> implements
                         + File.separator
                         + logic.getAppConfig().getCorpusDirName()
                         + File.separator
-                        + "corpus_summary.xml",
+                        + Constants.corpusSummaryFile,
                 logic.getAppConfig(),
                 gcState.getNumUrlSpamCorrectlyLabeled(),
                 gcState.getNumUrlHamCorrectlyLabeled());

@@ -16,6 +16,7 @@ public interface Constants {
 	String defaultConfigXML= "/config/config.xml";
 	String dataSourcesTypesXML= "/config/datasources.xml";
 	String corpusConfigFile= "corpus_config.xml";
+	String corpusSummaryFile = "corpus_summary.xml";
 
 	public interface AppConfigConstants {
 		String CORPUS_DIR_PATH_DEFAULT = "RESULT";
