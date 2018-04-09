@@ -216,7 +216,7 @@ public class WarcDS extends DataSource implements IDataSource {
 
 				String pageLanguage = getPageLanguage(String.valueOf(bean.getData()));
 				ANVLRecord headers = new ANVLRecord(1);
-				headers.addLabelValue("WARC-language", pageLanguage);
+				headers.addLabelValue("WARC-Language", pageLanguage);
 				writer.writeResponseRecord(bean.getUrl(),
 						ArchiveUtils.get14DigitDate(),
 						bean.getContentType(),
