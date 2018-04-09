@@ -2,6 +2,9 @@ package com.warcgenerator.core.datasource.warc;
 
 import java.io.*;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,8 +40,10 @@ public class WarcDS extends DataSource implements IDataSource {
 	public static final String DS_TYPE = "WarcDS";
 	public static final String URL_TAG = "WarcURLTag";
 	public static final String REGEXP_URL_TAG = "RegExpURLAttribute";
-	private static final String HEADER_WARC_LANGUAGES = "WARC-All-Languages:";
-    private static final String HEADER_WARC_CONTENT_TYPES = "WARC-All-Content_types:";
+	private static final String HEADER_WARC_LANGUAGES = "WARC-All-Languages";
+    private static final String HEADER_WARC_CONTENT_TYPES = "WARC-All-Content_types";
+    private static final String HEADER_WARC_CONTENT_TYPE = "Content-types";
+    private static final String HEADER_WARC_CONTENT_TYPE_VALUE = "application/warc-fields";
 
 	@SuppressWarnings("unused")
 	private OutputWarcConfig config;
@@ -86,17 +91,20 @@ public class WarcDS extends DataSource implements IDataSource {
 			BufferedOutputStream bos = new BufferedOutputStream(
 					new FileOutputStream(warc));
 
-			List<String> metadata = new ArrayList<>();
-			metadata.add(HEADER_WARC_LANGUAGES);
-            metadata.add('\n'+HEADER_WARC_CONTENT_TYPES);
+            ANVLRecord headers = new ANVLRecord();
+            headers.addLabelValue(HEADER_WARC_LANGUAGES, "");
+            headers.addLabelValue(HEADER_WARC_CONTENT_TYPES, "");
 
-			writer = new WARCWriter(new AtomicInteger(), bos, warc,
-					getSettings(false, "", null, metadata));
+            writer = new WARCWriter(new AtomicInteger(), bos, warc,
+					getSettings(false, "", null, new ArrayList<>(1)));
 
-			// Write a warcinfo record with description about how this WARC
-			// was made.
-			// If you want to write something in the head of warc
-            writer.writeWarcinfoRecord(warc.getName());
+            // Write a warcinfo record with description about how this WARC
+            // was made.
+            // If you want to write something in the head of warc
+            String metadata = "WARCProcessor by SING Group www.sing-group.com";
+            ByteArrayInputStream is = new ByteArrayInputStream(metadata.getBytes());
+
+            writer.writeWarcinfoRecord("application/warc-fields", headers, is, metadata.getBytes().length);
 		} catch (IOException e) {
 			throw new OpenException(e);
 		}
@@ -218,9 +226,6 @@ public class WarcDS extends DataSource implements IDataSource {
 						is.available());
 				is.close();
 
-				// This header tags have to be added when the WARC file is created
-				writeHeader(HEADER_WARC_LANGUAGES, pageLanguage);
-                writeHeader(HEADER_WARC_CONTENT_TYPES, bean.getContentType());
 			} catch (IOException e) {
 				e.printStackTrace();
 				throw new WriteException(e);
@@ -263,51 +268,4 @@ public class WarcDS extends DataSource implements IDataSource {
 
 		return language;
 	}
-
-    /**
-     * Write header on the WARC file
-     *
-     * @param name Header name
-     * @param value Header value
-     * @throws DSException
-     */
-	private void writeHeader(String name, String value) throws DSException{
-        try {
-            BufferedReader file = new BufferedReader(new FileReader(warc));
-            String line;
-            StringBuilder inputBuffer = new StringBuilder();
-
-            while ((line = file.readLine()) != null) {
-                inputBuffer.append(line);
-                inputBuffer.append('\n');
-            }
-            String inputStr = inputBuffer.toString();
-
-            file.close();
-
-            // Retrieve the values that already exist for this header
-            String[] aux = inputStr.split(name);
-            if (aux.length >= 1) {
-                String languagesToSplit = aux[1].substring(0, aux[1].indexOf('\n'));
-                // Create a Set to avoid repeated values
-                String separator = ",";
-                Set<String> languagesSet = new HashSet<>();
-                if (!languagesToSplit.isEmpty()) {
-                    languagesSet.addAll(Arrays.asList(languagesToSplit.trim().split(separator)));
-                }
-                languagesSet.add(value);
-                // Create a String with the header values of the WARC file
-                String languages = StringUtil.collectionToString(languagesSet, separator);
-                inputStr = inputStr.replaceFirst("(?m)^" + name + ".*$", name + " " + languages);
-            }
-            // write the new String with the replaced line OVER the same file
-            FileOutputStream fileOut = new FileOutputStream(warc);
-            fileOut.write(inputStr.getBytes());
-            fileOut.close();
-
-        } catch (IOException e) {
-            throw new DSException(e);
-        }
-    }
-
 }
