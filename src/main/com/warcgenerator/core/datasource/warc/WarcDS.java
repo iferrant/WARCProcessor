@@ -2,18 +2,13 @@ package com.warcgenerator.core.datasource.warc;
 
 import java.io.*;
 import java.net.URI;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-import com.warcgenerator.core.util.StringUtil;
 import org.apache.log4j.Logger;
+import org.apache.lucene.misc.TrigramLanguageGuesser;
 import org.archive.io.arc.ARCConstants;
 import org.archive.io.warc.WARCWriter;
 import org.archive.io.warc.WARCWriterPoolSettings;
@@ -40,8 +35,9 @@ public class WarcDS extends DataSource implements IDataSource {
 	public static final String DS_TYPE = "WarcDS";
 	public static final String URL_TAG = "WarcURLTag";
 	public static final String REGEXP_URL_TAG = "RegExpURLAttribute";
-	private static final String HEADER_WARC_LANGUAGES = "WARC-All-Languages";
-    private static final String HEADER_WARC_CONTENT_TYPES = "WARC-All-Content_types";
+	private static final String HEADER_WARC_LANGUAGES = "WARC-All-Language";
+    private static final String HEADER_WARC_CONTENT_TYPES = "WARC-All-Content_type";
+    private static final String HEADER_WARCINFO_METADATA = "WARCProcessor by SING Group www.sing-group.com";
     private static final String HEADER_WARC_CONTENT_TYPE = "Content-types";
     private static final String HEADER_WARC_CONTENT_TYPE_VALUE = "application/warc-fields";
 
@@ -101,10 +97,12 @@ public class WarcDS extends DataSource implements IDataSource {
             // Write a warcinfo record with description about how this WARC
             // was made.
             // If you want to write something in the head of warc
-            String metadata = "WARCProcessor by SING Group www.sing-group.com";
-            ByteArrayInputStream is = new ByteArrayInputStream(metadata.getBytes());
+            ByteArrayInputStream is = new ByteArrayInputStream(HEADER_WARCINFO_METADATA.getBytes());
 
-            writer.writeWarcinfoRecord("application/warc-fields", headers, is, metadata.getBytes().length);
+            writer.writeWarcinfoRecord("application/warc-fields",
+                    headers,
+                    is,
+                    HEADER_WARCINFO_METADATA.getBytes().length);
 		} catch (IOException e) {
 			throw new OpenException(e);
 		}
