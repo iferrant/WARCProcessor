@@ -207,19 +207,23 @@ public class WarcDS extends DataSource implements IDataSource {
 			try {
 				InputStream is = null;
 				if (bean.getData() instanceof String) {
+				    // Add HTTP header to warc content
+				    String data = "HTTP/1.1 " +  bean.getHttpStatus() + "\r\n";
+				    data += "Content-Type:" + bean.getContentType() + "\r\n\r\n\r\n";
+				    data += bean.getData().toString();
 					is = new ByteArrayInputStream(
-							((String) bean.getData())
-									.getBytes(Constants.outputEnconding));
+							(data).getBytes(Constants.outputEnconding));
 				} else {
 					is = new ByteArrayInputStream((byte[]) bean.getData());
 				}
 
 				String pageLanguage = getPageLanguage(String.valueOf(bean.getData()));
+				String contentType = bean.getContentType() != null? bean.getContentType() : "text/html";
 				ANVLRecord headers = new ANVLRecord(1);
 				headers.addLabelValue("WARC-Language", pageLanguage);
 				writer.writeResponseRecord(bean.getUrl(),
 						ArchiveUtils.get14DigitDate(),
-						bean.getContentType(),
+						contentType,
 						new URI(bean.getUrl()),
 						headers,
 						is,
@@ -244,7 +248,7 @@ public class WarcDS extends DataSource implements IDataSource {
 				writer.close();
 
 			// Check if the output file is empty and remove it
-			if (warc != null && warc.length() == 0) {
+            if (warc != null && warc.length() == 286) { // 286 is the size of the WARC with the METADATA
 				warc.delete();
 			}
 		} catch (IOException e) {
@@ -259,12 +263,15 @@ public class WarcDS extends DataSource implements IDataSource {
 	 * @param html HTML of the page in String format
 	 * @return Language of the page
 	 */
-	private String getPageLanguage(String html) {
+	private String getPageLanguage(String html) throws Exception{
 		Element tagLang = Jsoup.parse(html).select("html").first();
 		String language = tagLang.attr("lang");
 		if (language != null && language.isEmpty()) {
 			language = tagLang.attr("xml:lang");
 		}
+        if (language != null && language.isEmpty()) {
+		    language = TrigramLanguageGuesser.detectLanguage(html);
+        }
 
 		return language;
 	}

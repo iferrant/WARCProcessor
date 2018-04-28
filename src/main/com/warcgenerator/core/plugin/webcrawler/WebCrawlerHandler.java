@@ -170,6 +170,7 @@ public class WebCrawlerHandler implements IWebCrawlerHandler {
 				if (config.getDownloadAgain()
 						|| !existPreviousWarcBean) {
 					bean.setData(htmlParseData.getHtml());
+					bean.setHttpStatus(htmlParseData.getHttpStatus());
 					bean.setContentType(htmlParseData.getContentType());
 				}
 				
