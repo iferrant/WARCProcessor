@@ -421,7 +421,7 @@ public class AppLogicImpl extends AppLogic implements IAppLogic {
 						generateCorpusState);
 
 				// Balance corpus
-				Task t6 = new BalanceCorpusTask(outputCorpusConfig, spamDS, hamDS,
+				Task t6 = new BalanceCorpusTask(generateCorpusState, spamDS, hamDS,
                         config.getRatioPercentageSpam());
 
 				executorTasks = new ExecutionTaskBatch();
