@@ -26,7 +26,7 @@ public class CustomWarcWriter {
     private Map<String, List<CustomHeader>> customHeaders = new HashMap<>();
 
     private int numPages;
-    private String folderName;
+    private String folderPath;
     private File[] files;
 
     /**
@@ -36,7 +36,7 @@ public class CustomWarcWriter {
      * @param numPages Number of pages to write of this <code>folder</code>
      */
     public CustomWarcWriter(File folder, int numPages) {
-        this.folderName = folder.getName();
+        this.folderPath = folder.getAbsolutePath();
         this.files = getFilesOfFolder(folder);
         this.numPages = numPages;
     }
@@ -52,8 +52,6 @@ public class CustomWarcWriter {
             List<WarcRecord> auxWarcsList = buildListOfPages(files);
 
             warcsList.forEach(this::setCustomHeaders);
-
-            customHeaders.forEach((k, v) -> v.forEach(System.out::println));
 
             Iterator<WarcRecord> it = auxWarcsList.iterator();
             while (it.hasNext() && numPages != 0) {
@@ -113,7 +111,7 @@ public class CustomWarcWriter {
     private void writeWarcFile(WarcRecord warcRecord) {
         // Create corpus directory if not exist
         createDirectory();
-        File file = new File(folderName + "copy/" + warcRecord.getFileName());
+        File file = new File(folderPath + "copy/" + warcRecord.getFileName());
         try (FileOutputStream os = new FileOutputStream(file)) {
             writeWarcInfoHeader(warcRecord.getFileName(), warcRecord.getWarcInfoHeader(), os);
             writeResponses(warcRecord.getPages(), os);
@@ -251,7 +249,8 @@ public class CustomWarcWriter {
         CustomHeader languages = new CustomHeader(HEADER_WARCINFO_ALL_LANGUAGE, new HashSet<>());
         CustomHeader contentTypes = new CustomHeader(HEADER_WARCINFO_ALL_CONTENT_TYPE, new HashSet<>());
         WarcRecord aux = new WarcRecord(warcRecord);
-        while (aux.getPages().hasNext()) {
+        int numHeaders = numPages; // We just want the same number of headers than pages
+        while (aux.getPages().hasNext() && numHeaders != 0) {
             ArchiveRecordHeader recordHeader = aux.getPages().next().getHeader();
             Object lang = recordHeader.getHeaderValue(HEADER_LANGUAGE);
             Object cont = recordHeader.getHeaderValue(HEADER_CONTENT_TYPE);
@@ -261,6 +260,7 @@ public class CustomWarcWriter {
             if (cont != null) {
                 contentTypes.getValues().add(cont.toString());
             }
+            numHeaders--;
         }
         List<CustomHeader> headers = new ArrayList<>();
         headers.add(languages);
@@ -281,7 +281,7 @@ public class CustomWarcWriter {
      * Creates the result folder if not exist
      */
     private void createDirectory() {
-        String directoryName = folderName + "copy";
+        String directoryName = folderPath + "copy";
         File directory = new File(directoryName);
         if (!directory.exists()) {
             directory.mkdir();

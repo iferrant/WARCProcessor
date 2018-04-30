@@ -420,17 +420,12 @@ public class AppLogicImpl extends AppLogic implements IAppLogic {
 						urlsNotActive, outputDS, outputCorpusConfig, labeledDS,
 						generateCorpusState);
 
-				// Balance corpus
-				Task t6 = new BalanceCorpusTask(generateCorpusState, spamDS, hamDS,
-                        config.getRatioPercentageSpam());
-
 				executorTasks = new ExecutionTaskBatch();
 				executorTasks.addTask(t1);
 				executorTasks.addTask(t2);
 				executorTasks.addTask(t3);
 				executorTasks.addTask(t4);
 				executorTasks.addTask(t5);
-				executorTasks.addTask(t6);
 
 				executorTasks.execution();
 
@@ -457,6 +452,17 @@ public class AppLogicImpl extends AppLogic implements IAppLogic {
 								.getNumSites())
 					stop = true;
 			} while (!executorTasks.isTerminate() && !stop);
+
+            // Close all output datasources
+            // We need to close them to be balanced
+            for (DataSource ds : outputDS.values()) {
+                ds.close();
+            }
+
+            // Balance corpus to respect the percentages sets on the configuration
+            new BalanceCorpusTask(generateCorpusState, outputCorpusConfig.getSpamDir(),
+                    outputCorpusConfig.getHamDir(), config)
+                    .execute();
 
 			// Show the finish overcome
 			if (!executorTasks.isTerminate()
