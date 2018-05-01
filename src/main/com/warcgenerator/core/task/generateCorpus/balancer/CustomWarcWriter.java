@@ -11,6 +11,9 @@ import java.text.ParseException;
 import java.util.*;
 
 public class CustomWarcWriter {
+    // The folder sufix to add to the name of the balanced corpus folders
+    public static final String FOLDER_SUFFIX = "copy";
+
     private final String WARC_VERSION = "WARC/1.0";
     private final String WARC_CONTENT_TYPE_VALUE = "application/http;msgtype=response";
     private final String HEADER_WARCINFO_ALL_LANGUAGE = "WARC-All-Language";
@@ -111,7 +114,7 @@ public class CustomWarcWriter {
     private void writeWarcFile(WarcRecord warcRecord) {
         // Create corpus directory if not exist
         createDirectory();
-        File file = new File(folderPath + "copy/" + warcRecord.getFileName());
+        File file = new File(folderPath + FOLDER_SUFFIX + "/" + warcRecord.getFileName());
         try (FileOutputStream os = new FileOutputStream(file)) {
             writeWarcInfoHeader(warcRecord.getFileName(), warcRecord.getWarcInfoHeader(), os);
             writeResponses(warcRecord.getPages(), os);
@@ -281,7 +284,7 @@ public class CustomWarcWriter {
      * Creates the result folder if not exist
      */
     private void createDirectory() {
-        String directoryName = folderPath + "copy";
+        String directoryName = folderPath + FOLDER_SUFFIX;
         File directory = new File(directoryName);
         if (!directory.exists()) {
             directory.mkdir();

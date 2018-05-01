@@ -3,9 +3,11 @@ package com.warcgenerator.core.task.generateCorpus;
 import com.warcgenerator.core.config.AppConfig;
 import com.warcgenerator.core.task.generateCorpus.balancer.CustomWarcWriter;
 import com.warcgenerator.core.task.generateCorpus.state.GenerateCorpusState;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Balance the corpus URLs based on the configuration files
@@ -48,6 +50,9 @@ public class BalanceCorpusTask {
         CustomWarcWriter writeHam =
                 new CustomWarcWriter(new File(hamFolderPath), (int) balancedNumHamRecords);
         writeHam.writeWarcs();
+
+        removeOriginalFolders();
+        renameResultFolders();
     }
 
     /**
@@ -99,6 +104,40 @@ public class BalanceCorpusTask {
 
         generateCorpusState.setNumUrlSpamCorrectlyLabeled((int) balancedNumSpamRecords);
         generateCorpusState.setNumUrlHamCorrectlyLabeled((int) balancedNumHamRecords);
+    }
+
+    /**
+     * Remove original spam and ham folders. This folders can be deleted because they
+     * are not balanced. The result of the balance is saved on the *_copy_ directories
+     */
+    private void removeOriginalFolders() {
+        try {
+            FileUtils.deleteDirectory(new File(spamFolderPath));
+            FileUtils.deleteDirectory(new File(hamFolderPath));
+        } catch (IOException e) {
+            System.err.println("Error deleting original spam/ham folders");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Rename the spam and ham folder that have been balanced. This folder are named
+     * using the original names and the <code>FOLDER_SUFFIX</code> but the result
+     * must be with the original names
+     */
+    private void renameResultFolders() {
+        try {
+            // Rename spam folder
+            String spamBalancedCorpus = spamFolderPath + CustomWarcWriter.FOLDER_SUFFIX;
+            new File(spamBalancedCorpus).renameTo(new File(spamFolderPath));
+
+            // Rename ham folder
+            String hamBalancedCorpus = hamFolderPath + CustomWarcWriter.FOLDER_SUFFIX;
+            new File(hamBalancedCorpus).renameTo(new File(hamFolderPath));
+        } catch (Exception e) {
+            System.err.println("Error renaming the corpus's spam/ham folders");
+            e.printStackTrace();
+        }
     }
 
 }
