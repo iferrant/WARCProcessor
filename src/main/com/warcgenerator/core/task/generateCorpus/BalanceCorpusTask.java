@@ -97,7 +97,7 @@ public class BalanceCorpusTask {
         }
 
         // If one of the percentages is 0, the other one must be 0 also
-        if (percentageSpam == 0 || percentageHam == 0) {
+        if (balancedNumSpamRecords == 0 || balancedNumHamRecords == 0) {
             balancedNumSpamRecords = 0;
             balancedNumHamRecords = 0;
         }
