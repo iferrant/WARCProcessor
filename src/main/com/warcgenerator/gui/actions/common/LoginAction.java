@@ -28,7 +28,7 @@ public class LoginAction extends AbstractAction {
         loginDialog.loading(true);
         loginDialog.showCredentialsError(false);
         ServerRequestService serverRequestService = new ServerRequestService();
-        serverRequestService.loginUser(AppWarc.userGlobal, new RequestResponse<Token>() {
+        serverRequestService.authenticateUser(AppWarc.userGlobal, new RequestResponse<Token>() {
             @Override
             public void onRequestSuccess(Token response) {
                 AppWarc.userGlobal.setToken(response);
