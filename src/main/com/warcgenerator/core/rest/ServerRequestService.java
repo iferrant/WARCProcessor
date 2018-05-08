@@ -1,81 +1,77 @@
 package com.warcgenerator.core.rest;
 
-import com.warcgenerator.AppWarc;
+import com.warcgenerator.core.rest.endpoints.Corpus;
+import com.warcgenerator.core.rest.endpoints.Login;
+import com.warcgenerator.core.rest.models.CorpusResponse;
 import com.warcgenerator.core.rest.models.Token;
 import com.warcgenerator.core.rest.models.User;
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
-import wiremock.com.jayway.jsonpath.spi.impl.JacksonProvider;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.InvocationCallback;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.File;
 
 public class ServerRequestService {
-    public static final String API_URL = "http://localhost:8080/api/";
-    public static final String LOGIN = "login";
-    public static final String CORPUS = "corpus";
-
-    private Client client = ClientBuilder
-            .newClient()
-            .property(ClientProperties.CONNECT_TIMEOUT, 1000)
-            .property(ClientProperties.READ_TIMEOUT, 1000);
 
     /**
      * Request a new token based on the user credentials
      *
      * @param user User to login
-     * @return Valid token
+     * @param responseCallback Callback to retrieve the API response
      */
-    public void loginUser(User user, RequestResponse<Token> responseCallback) {
-         client
-                 .register(JacksonProvider.class)
-                 .target(API_URL)
-                 .path(LOGIN)
-                 .request(MediaType.APPLICATION_JSON)
-                 .async()
-                 .post(Entity.entity(user, MediaType.APPLICATION_JSON), new InvocationCallback<Response>() {
-                    @Override
-                    public void completed(Response response) {
-                        Token token = response.readEntity(Token.class);
-                        if (token != null && token.getToken() != null) {
-                            responseCallback.onRequestSuccess(token);
-                        } else {
-                            responseCallback.onRequestFail("Token is null");
-                        }
-                    }
+    public void authenticateUser(User user, final RequestResponse<Token> responseCallback) {
+        final Login loginService = ServiceGenerator.createService(Login.class);
 
-                    @Override
-                    public void failed(Throwable throwable) {
-                        responseCallback.onRequestFail(throwable.getMessage());
-                    }
-                 });
+        Call<Token> tokenCall = loginService.login(user.getEmail(), user.getPassword());
+        tokenCall.enqueue(new Callback<Token>() {
+            @Override
+            public void onResponse(Call<Token> call, retrofit2.Response<Token> response) {
+                if (response != null && response.body() != null && response.isSuccessful()) {
+                    responseCallback.onRequestSuccess(response.body());
+                } else {
+                    responseCallback.onRequestFail("Login response not successful");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Token> call, Throwable throwable) {
+                responseCallback.onRequestFail(throwable.getMessage());
+            }
+        });
     }
 
     /**
      * Upload new corpus to the API
      */
     public void postCorpus(String corpusName, String corpusPath) {
-        final FileDataBodyPart filePart = new FileDataBodyPart("file", new File(corpusPath));
-        FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
-        final FormDataMultiPart multipart =
-                (FormDataMultiPart) formDataMultiPart
-                        .field("name", corpusName)
-                        .bodyPart(filePart);
-        String status = client.register(MultiPartFeature.class)
-                .target(API_URL)
-                .path(CORPUS)
-                .request(MediaType.APPLICATION_FORM_URLENCODED_TYPE)
-                .header("Content-Type", "application/x-www-form-urlencoded")
-                .header("Authorization", "Bearer " + AppWarc.userGlobal.getToken().getToken())
-                .post(Entity.entity(multipart, multipart.getMediaType()))
-        .getStatusInfo().toString();
-        System.out.println("HTTP status response: " +status);
+        File corpusFile = new File(corpusPath);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), corpusFile);
+        // The 'name' field of the 'createFormData()' method,
+        // must be the form label name for the corpus file
+        MultipartBody.Part body = MultipartBody.Part.createFormData("file", corpusName, requestBody);
+
+        RequestBody name = RequestBody.create(MultipartBody.FORM, corpusName);
+
+        final Corpus corpusService = ServiceGenerator.createService(Corpus.class);
+
+        Call<CorpusResponse> corpusCall = corpusService.corpus(name, body);
+        corpusCall.enqueue(new Callback<CorpusResponse>() {
+            @Override
+            public void onResponse(Call<CorpusResponse> call, Response<CorpusResponse> response) {
+                if (response.body() != null && response.isSuccessful()) {
+                    System.out.println("Corpus uploaded!");
+                } else {
+                    System.err.println("Corpus upload not successful");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CorpusResponse> call, Throwable throwable) {
+                System.err.println(throwable.getMessage());
+            }
+        });
     }
 }
