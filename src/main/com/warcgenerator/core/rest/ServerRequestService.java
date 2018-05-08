@@ -5,12 +5,15 @@ import com.warcgenerator.core.rest.endpoints.Login;
 import com.warcgenerator.core.rest.models.CorpusResponse;
 import com.warcgenerator.core.rest.models.Token;
 import com.warcgenerator.core.rest.models.User;
+import com.warcgenerator.core.rest.response.CountingRequestBody;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Response;
 
 import java.io.File;
 
@@ -46,32 +49,52 @@ public class ServerRequestService {
     /**
      * Upload new corpus to the API
      */
-    public void postCorpus(String corpusName, String corpusPath) {
-        File corpusFile = new File(corpusPath);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), corpusFile);
-        // The 'name' field of the 'createFormData()' method,
-        // must be the form label name for the corpus file
-        MultipartBody.Part body = MultipartBody.Part.createFormData("file", corpusName, requestBody);
+    public Flowable<Double> postCorpus(String corpusPath) {
 
-        RequestBody name = RequestBody.create(MultipartBody.FORM, corpusName);
+        RequestBody name = RequestBody.create(MultipartBody.FORM, corpusPath);
 
         final Corpus corpusService = ServiceGenerator.createService(Corpus.class);
 
-        Call<CorpusResponse> corpusCall = corpusService.corpus(name, body);
-        corpusCall.enqueue(new Callback<CorpusResponse>() {
-            @Override
-            public void onResponse(Call<CorpusResponse> call, Response<CorpusResponse> response) {
-                if (response.body() != null && response.isSuccessful()) {
-                    System.out.println("Corpus uploaded!");
-                } else {
-                    System.err.println("Corpus upload not successful");
-                }
+        return Flowable.create(emitter -> {
+            try {
+                CorpusResponse response =
+                        corpusService.corpus(name, createMultipartBody(corpusPath, emitter)).blockingGet();
+                emitter.onComplete();
+            } catch (Exception e) {
+                emitter.tryOnError(e);
             }
+        }, BackpressureStrategy.LATEST);
+    }
 
-            @Override
-            public void onFailure(Call<CorpusResponse> call, Throwable throwable) {
-                System.err.println(throwable.getMessage());
-            }
+    /**
+     * Creates {@link MultipartBody} with the corpus path and the file to upload
+     * The body of the request also includes an {@link FlowableEmitter} to track
+     * the upload progress
+     *
+     * @param corpusPath Corpus path
+     * @param emitter {@link FlowableEmitter} double emitter
+     * @return {@link MultipartBody.Part} object
+     */
+    private MultipartBody.Part createMultipartBody(String corpusPath, FlowableEmitter<Double> emitter) {
+        // The 'name' field of the 'createFormData()' method,
+        // must be the form label name for the corpus file
+        return MultipartBody
+                .Part
+                .createFormData("file", corpusPath, createCountingRequestBody(corpusPath, emitter));
+    }
+
+    /**
+     * Creates the request's body
+     * @param corpusPath Path of the file to upload
+     * @param emitter {@link FlowableEmitter} double emitter
+     * @return {@link RequestBody} object
+     */
+    private RequestBody createCountingRequestBody(String corpusPath, FlowableEmitter<Double> emitter) {
+        File corpusFile = new File(corpusPath);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), corpusFile);
+        return new CountingRequestBody(requestBody, (bytesWritten, contentLength) -> {
+            double progress = (1.0 * bytesWritten) / contentLength;
+            emitter.onNext(progress);
         });
     }
 }

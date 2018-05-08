@@ -8,6 +8,7 @@ import com.warcgenerator.core.rest.ServerRequestService;
 import com.warcgenerator.core.util.ZipUtils;
 import com.warcgenerator.gui.util.Messages;
 import com.warcgenerator.gui.view.WarcGeneratorGUI;
+import io.reactivex.schedulers.Schedulers;
 
 import javax.swing.*;
 import java.awt.*;
@@ -56,7 +57,26 @@ public class UploadCorpusAction extends AbstractAction implements Observer {
     @Override
     public void update(Observable observable, Object o) {
         ServerRequestService serverRequestService = new ServerRequestService();
-        serverRequestService.postCorpus(corpusZipName, corpusZipName);
+        serverRequestService
+                .postCorpus(corpusZipName)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.io())
+                .subscribe(
+                        this::printProgress,
+                        error -> showError(error.getMessage()),
+                        this::uploadCompleted);
+    }
+
+    private void printProgress(double progress) {
+        System.out.println("------------------------------> Progress:" + progress);
+    }
+
+    private void showError(String message) {
+        System.out.println("------------------------------> Error:" + message);
+    }
+
+    private void uploadCompleted() {
+        System.out.println("------------------------------> COMPLETED!");
     }
 
     private void corpusNotValid(Component component) {
