@@ -96,12 +96,14 @@ public class UploadCorpusAction extends AbstractAction implements Observer {
                 Messages.getString("UploadingCorpusDialog.error.title"),
                 JOptionPane.ERROR_MESSAGE);
         uploadingCorpusDialog.setVisible(false);
+        new ZipUtils().removeZip(corpusZipName);
     }
 
     /**
      *
      */
     private void uploadCompleted() {
+        new ZipUtils().removeZip(corpusZipName);
         uploadingCorpusDialog.setVisible(false);
         System.out.println("Upload completed");
     }
