@@ -8,6 +8,7 @@ import com.warcgenerator.core.rest.ServerRequestService;
 import com.warcgenerator.core.util.ZipUtils;
 import com.warcgenerator.gui.util.Messages;
 import com.warcgenerator.gui.view.WarcGeneratorGUI;
+import com.warcgenerator.gui.view.upload.UploadingCorpusDialog;
 import io.reactivex.schedulers.Schedulers;
 
 import javax.swing.*;
@@ -21,6 +22,8 @@ import java.util.Observer;
 public class UploadCorpusAction extends AbstractAction implements Observer {
     private WarcGeneratorGUI view;
     private String corpusZipName;
+    private JFileChooser fileChooser;
+    private UploadingCorpusDialog uploadingCorpusDialog;
 
     public UploadCorpusAction(WarcGeneratorGUI view) {
         this.view = view;
@@ -28,7 +31,8 @@ public class UploadCorpusAction extends AbstractAction implements Observer {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        JFileChooser fileChooser = new JFileChooser();
+        uploadingCorpusDialog = new UploadingCorpusDialog(view);
+        fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
         int userSelection = fileChooser.showDialog(view.getMainFrame(),
@@ -44,12 +48,16 @@ public class UploadCorpusAction extends AbstractAction implements Observer {
                         && CorpusValidatorHelper.isCorpusFolder(corpusSummary, fileToUpload.getPath())) {
                     corpusZipName = fileToUpload.getName() + ".zip";
 
-                    new ZipUtils(this, fileToUpload.getAbsolutePath(), corpusZipName).pack();
+                    new ZipUtils().pack(this, fileToUpload.getAbsolutePath(), corpusZipName);
+                    // Show upload progress bar
+                    uploadingCorpusDialog.setVisible(true);
                 } else {
                     corpusNotValid(fileChooser);
                 }
             }  catch (IOException ex) {
                 corpusNotValid(fileChooser);
+                System.out.println(ex.getMessage());
+                ex.printStackTrace();
             }
         }
     }
@@ -62,21 +70,40 @@ public class UploadCorpusAction extends AbstractAction implements Observer {
                 .subscribeOn(Schedulers.computation())
                 .observeOn(Schedulers.io())
                 .subscribe(
-                        this::printProgress,
+                        this::setProgress,
                         error -> showError(error.getMessage()),
                         this::uploadCompleted);
     }
 
-    private void printProgress(double progress) {
-        System.out.println("------------------------------> Progress:" + progress);
+    /**
+     * Sets the upload progress on the dialog progress bar
+     * @param progress Double with upload progress
+     */
+    private void setProgress(double progress) {
+        if (uploadingCorpusDialog != null) {
+            uploadingCorpusDialog.getProgressBar().setValue((int) (100 * progress));
+        }
     }
 
+    /**
+     * Shows an error if something goes wrong while the corpus is uploading
+     * @param message Error message
+     */
     private void showError(String message) {
-        System.out.println("------------------------------> Error:" + message);
+        JOptionPane.showMessageDialog(
+                view.getMainFrame(),
+                Messages.getString("UploadingCorpusDialog.error.text"),
+                Messages.getString("UploadingCorpusDialog.error.title"),
+                JOptionPane.ERROR_MESSAGE);
+        uploadingCorpusDialog.setVisible(false);
     }
 
+    /**
+     *
+     */
     private void uploadCompleted() {
-        System.out.println("------------------------------> COMPLETED!");
+        uploadingCorpusDialog.setVisible(false);
+        System.out.println("Upload completed");
     }
 
     private void corpusNotValid(Component component) {
