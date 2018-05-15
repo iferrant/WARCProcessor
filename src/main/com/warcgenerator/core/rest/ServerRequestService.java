@@ -2,6 +2,7 @@ package com.warcgenerator.core.rest;
 
 import com.warcgenerator.core.rest.endpoints.Corpus;
 import com.warcgenerator.core.rest.endpoints.Login;
+import com.warcgenerator.core.rest.endpoints.Tokens;
 import com.warcgenerator.core.rest.models.CorpusResponse;
 import com.warcgenerator.core.rest.models.Token;
 import com.warcgenerator.core.rest.models.User;
@@ -36,6 +37,32 @@ public class ServerRequestService {
                     responseCallback.onRequestSuccess(response.body());
                 } else {
                     responseCallback.onRequestFail("Login response not successful");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Token> call, Throwable throwable) {
+                responseCallback.onRequestFail(throwable.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Refresh the token to retrieve a new valid token
+     *
+     * @param responseCallback Callback to retrieve the API response
+     */
+    public void refreshToken(final RequestResponse<Token> responseCallback) {
+        final Tokens tokenService = ServiceGenerator.createService(Tokens.class);
+
+        Call<Token> refreshTokenCall = tokenService.refreshToken();
+        refreshTokenCall.enqueue(new Callback<Token>() {
+            @Override
+            public void onResponse(Call<Token> call, retrofit2.Response<Token> response) {
+                if (response != null && response.body() != null && response.isSuccessful()) {
+                    responseCallback.onRequestSuccess(response.body());
+                } else {
+                    responseCallback.onRequestFail("Refresh token response not successful");
                 }
             }
 

@@ -1,10 +1,13 @@
 package com.warcgenerator.gui.actions.upload;
 
+import com.warcgenerator.AppWarc;
 import com.warcgenerator.core.config.Constants;
 import com.warcgenerator.core.config.CorpusSummary;
 import com.warcgenerator.core.helper.CorpusValidatorHelper;
 import com.warcgenerator.core.helper.XMLConfigHelper;
+import com.warcgenerator.core.rest.RequestResponse;
 import com.warcgenerator.core.rest.ServerRequestService;
+import com.warcgenerator.core.rest.models.Token;
 import com.warcgenerator.core.util.ZipUtils;
 import com.warcgenerator.gui.util.Messages;
 import com.warcgenerator.gui.view.WarcGeneratorGUI;
@@ -68,7 +71,41 @@ public class UploadCorpusAction extends AbstractAction implements Observer {
 
     @Override
     public void update(Observable observable, Object o) {
-        ServerRequestService serverRequestService = new ServerRequestService();
+        final ServerRequestService serverRequestService = new ServerRequestService();
+        serverRequestService.refreshToken(new RequestResponse<Token>() {
+            @Override
+            public void onRequestSuccess(Token response) {
+                AppWarc.userGlobal.setToken(response);
+                // The response is correct and  the user has a new token
+                // so we can upload the corpus to the server
+                uploadCorpus(serverRequestService);
+            }
+
+            @Override
+            public void onRequestFail(String error) {
+                showError(new Throwable(error));
+            }
+        });
+    }
+
+    /**
+     * Cancels the corpus upload
+     */
+    public void cancelCorpusUpload() {
+        if (disposableSubscriber != null && !disposableSubscriber.isDisposed()) {
+            disposableSubscriber.dispose();
+            System.out.println("Upload canceled");
+            uploadCompleted();
+        } else {
+            System.out.println("Disposable is null");
+        }
+    }
+
+    /**
+     * Uploads the corpus to the server
+     * @param serverRequestService {@link ServerRequestService} service to perform the request
+     */
+    private void uploadCorpus(ServerRequestService serverRequestService) {
         disposableSubscriber = serverRequestService
                 .postCorpus(corpusZipName)
                 .subscribeOn(Schedulers.computation())
@@ -90,16 +127,7 @@ public class UploadCorpusAction extends AbstractAction implements Observer {
                         uploadCompleted();
                     }
                 });
-    }
 
-    public void cancelCorpusUpload() {
-        if (disposableSubscriber != null && !disposableSubscriber.isDisposed()) {
-            disposableSubscriber.dispose();
-            System.out.println("Upload canceled");
-            uploadCompleted();
-        } else {
-            System.out.println("Disposable is null");
-        }
     }
 
     /**
