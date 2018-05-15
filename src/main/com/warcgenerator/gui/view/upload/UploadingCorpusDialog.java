@@ -1,5 +1,7 @@
 package com.warcgenerator.gui.view.upload;
 
+import com.warcgenerator.gui.actions.upload.CancelUploadCorpusAction;
+import com.warcgenerator.gui.actions.upload.UploadCorpusAction;
 import com.warcgenerator.gui.components.CustomButton;
 import com.warcgenerator.gui.components.CustomJDialog;
 import com.warcgenerator.gui.components.CustomLabel;
@@ -16,9 +18,11 @@ public class UploadingCorpusDialog extends CustomJDialog {
 	private Action cancelUploadCorpusAction;
 	private CustomButton cancelBtn;
 
-	public UploadingCorpusDialog(WarcGeneratorGUI view) {
+	public UploadingCorpusDialog(WarcGeneratorGUI view, UploadCorpusAction uploadCorpusAction) {
 		super(view.getMainFrame(), true);
 		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+
+		cancelUploadCorpusAction = new CancelUploadCorpusAction(view, uploadCorpusAction);
 
 		setTitle(Messages.getString("UploadingCorpusDialog.title.text"));
 		view.addLocaleChangeListener(this);

@@ -10,6 +10,7 @@ import com.warcgenerator.gui.util.Messages;
 import com.warcgenerator.gui.view.WarcGeneratorGUI;
 import com.warcgenerator.gui.view.upload.UploadingCorpusDialog;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subscribers.DisposableSubscriber;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,6 +25,7 @@ public class UploadCorpusAction extends AbstractAction implements Observer {
     private String corpusZipName;
     private JFileChooser fileChooser;
     private UploadingCorpusDialog uploadingCorpusDialog;
+    private DisposableSubscriber disposableSubscriber;
 
     public UploadCorpusAction(WarcGeneratorGUI view) {
         this.view = view;
@@ -31,7 +33,7 @@ public class UploadCorpusAction extends AbstractAction implements Observer {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        uploadingCorpusDialog = new UploadingCorpusDialog(view);
+        uploadingCorpusDialog = new UploadingCorpusDialog(view, this);
         fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
@@ -46,9 +48,11 @@ public class UploadCorpusAction extends AbstractAction implements Observer {
                 // Check if the file selected is a corpus based on the corpus summary file
                 if (corpusSummary != null
                         && CorpusValidatorHelper.isCorpusFolder(corpusSummary, fileToUpload.getPath())) {
+                    // zip file
                     corpusZipName = fileToUpload.getName() + ".zip";
 
                     new ZipUtils().pack(this, fileToUpload.getAbsolutePath(), corpusZipName);
+
                     // Show upload progress bar
                     uploadingCorpusDialog.setVisible(true);
                 } else {
@@ -65,14 +69,37 @@ public class UploadCorpusAction extends AbstractAction implements Observer {
     @Override
     public void update(Observable observable, Object o) {
         ServerRequestService serverRequestService = new ServerRequestService();
-        serverRequestService
+        disposableSubscriber = serverRequestService
                 .postCorpus(corpusZipName)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(Schedulers.io())
-                .subscribe(
-                        this::setProgress,
-                        error -> showError(error.getMessage()),
-                        this::uploadCompleted);
+                .doOnCancel(this::uploadCompleted)
+                .subscribeWith(new DisposableSubscriber<Double>() {
+                    @Override
+                    public void onNext(Double aDouble) {
+                        setProgress(aDouble);
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        showError(throwable);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        uploadCompleted();
+                    }
+                });
+    }
+
+    public void cancelCorpusUpload() {
+        if (disposableSubscriber != null && !disposableSubscriber.isDisposed()) {
+            disposableSubscriber.dispose();
+            System.out.println("Upload canceled");
+            uploadCompleted();
+        } else {
+            System.out.println("Disposable is null");
+        }
     }
 
     /**
@@ -87,25 +114,32 @@ public class UploadCorpusAction extends AbstractAction implements Observer {
 
     /**
      * Shows an error if something goes wrong while the corpus is uploading
-     * @param message Error message
+     * @param throwable {@link Throwable} exception thrown
      */
-    private void showError(String message) {
-        JOptionPane.showMessageDialog(
-                view.getMainFrame(),
-                Messages.getString("UploadingCorpusDialog.error.text"),
-                Messages.getString("UploadingCorpusDialog.error.title"),
-                JOptionPane.ERROR_MESSAGE);
-        uploadingCorpusDialog.setVisible(false);
-        new ZipUtils().removeZip(corpusZipName);
+    private void showError(Throwable throwable) {
+        // if the upload is canceled, the InterruptedException is thrown
+        // and we don't want to show the error dialog in this situation
+        if (!(throwable instanceof InterruptedException)) {
+            JOptionPane.showMessageDialog(
+                    view.getMainFrame(),
+                    Messages.getString("UploadingCorpusDialog.error.text"),
+                    Messages.getString("UploadingCorpusDialog.error.title"),
+                    JOptionPane.ERROR_MESSAGE);
+            uploadingCorpusDialog.setVisible(false);
+            new ZipUtils().removeZip(corpusZipName);
+
+            System.err.println(throwable.getMessage());
+            throwable.printStackTrace();
+        }
     }
 
     /**
-     *
+     * Removes the zip file and hides the upload progress dialog
      */
     private void uploadCompleted() {
         new ZipUtils().removeZip(corpusZipName);
         uploadingCorpusDialog.setVisible(false);
-        System.out.println("Upload completed");
+        System.out.println("Upload finished");
     }
 
     private void corpusNotValid(Component component) {

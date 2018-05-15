@@ -59,6 +59,9 @@ public class ServerRequestService {
             try {
                 CorpusResponse response =
                         corpusService.corpus(name, createMultipartBody(corpusPath, emitter)).blockingGet();
+                // Reference to thread to interrupt the process when the user press the cancel button
+                Thread currentThread = Thread.currentThread();
+                emitter.setCancellable(currentThread::interrupt);
                 emitter.onComplete();
             } catch (Exception e) {
                 emitter.tryOnError(e);
