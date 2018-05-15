@@ -41,8 +41,13 @@ public class BalanceCorpusTask {
 
         setCorpusPercentages();
 
-        balanceCorpus(generateCorpusState.getNumUrlSpamCorrectlyLabeled(),
-                generateCorpusState.getNumUrlHamCorrectlyLabeled());
+        if (percentageSpam != 0 && percentageHam != 0) {
+            balanceCorpus(generateCorpusState.getNumUrlSpamCorrectlyLabeled(),
+                    generateCorpusState.getNumUrlHamCorrectlyLabeled());
+        } else {
+            balancedNumSpamRecords = generateCorpusState.getNumUrlSpamCorrectlyLabeled();
+            balancedNumHamRecords = generateCorpusState.getNumUrlHamCorrectlyLabeled();
+        }
 
         CustomWarcWriter writeSpam =
                 new CustomWarcWriter(new File(spamFolderPath), (int) balancedNumSpamRecords);
@@ -115,7 +120,7 @@ public class BalanceCorpusTask {
             FileUtils.deleteDirectory(new File(spamFolderPath));
             FileUtils.deleteDirectory(new File(hamFolderPath));
         } catch (IOException e) {
-            System.err.println("Error deleting original spam/ham folders");
+            logger.error("Error deleting original spam/ham folders");
             e.printStackTrace();
         }
     }
@@ -135,7 +140,7 @@ public class BalanceCorpusTask {
             String hamBalancedCorpus = hamFolderPath + CustomWarcWriter.FOLDER_SUFFIX;
             new File(hamBalancedCorpus).renameTo(new File(hamFolderPath));
         } catch (Exception e) {
-            System.err.println("Error renaming the corpus's spam/ham folders");
+            logger.error("Error renaming the corpus's spam/ham folders");
             e.printStackTrace();
         }
     }
