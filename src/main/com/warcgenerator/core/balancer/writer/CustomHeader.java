@@ -1,4 +1,4 @@
-package com.warcgenerator.core.task.generateCorpus.balancer;
+package com.warcgenerator.core.balancer.writer;
 
 import java.util.Set;
 

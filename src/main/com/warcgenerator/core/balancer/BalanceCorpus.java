@@ -1,7 +1,7 @@
-package com.warcgenerator.core.task.generateCorpus;
+package com.warcgenerator.core.balancer;
 
 import com.warcgenerator.core.config.AppConfig;
-import com.warcgenerator.core.task.generateCorpus.balancer.CustomWarcWriter;
+import com.warcgenerator.core.balancer.writer.CustomWarcWriter;
 import com.warcgenerator.core.task.generateCorpus.state.GenerateCorpusState;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -16,7 +16,7 @@ import java.io.IOException;
  * because can't be executed on the task batch. The warc files need
  * to be close to be read and modified.
  */
-public class BalanceCorpusTask {
+public class BalanceCorpus {
     private String spamFolderPath;
     private String hamFolderPath;
     private int percentageSpam;
@@ -26,10 +26,10 @@ public class BalanceCorpusTask {
     private GenerateCorpusState generateCorpusState;
     private AppConfig appConfig;
 
-    private static Logger logger = Logger.getLogger(BalanceCorpusTask.class);
+    private static Logger logger = Logger.getLogger(BalanceCorpus.class);
 
-    public BalanceCorpusTask(GenerateCorpusState generateCorpusState, String spamFolderPath,
-                             String hamFolderPath, AppConfig appConfig) {
+    public BalanceCorpus(GenerateCorpusState generateCorpusState, String spamFolderPath,
+                         String hamFolderPath, AppConfig appConfig) {
         this.generateCorpusState = generateCorpusState;
         this.spamFolderPath = spamFolderPath;
         this.hamFolderPath = hamFolderPath;

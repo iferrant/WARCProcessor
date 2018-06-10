@@ -37,7 +37,7 @@ import com.warcgenerator.core.helper.LangFilterHelper;
 import com.warcgenerator.core.helper.XMLConfigHelper;
 import com.warcgenerator.core.task.ExecutionTaskBatch;
 import com.warcgenerator.core.task.Task;
-import com.warcgenerator.core.task.generateCorpus.BalanceCorpusTask;
+import com.warcgenerator.core.balancer.BalanceCorpus;
 import com.warcgenerator.core.task.generateCorpus.CheckActiveSitesConfigTask;
 import com.warcgenerator.core.task.generateCorpus.GetURLFromDSTask;
 import com.warcgenerator.core.task.generateCorpus.ReadURLsTask;
@@ -460,7 +460,7 @@ public class AppLogicImpl extends AppLogic implements IAppLogic {
             }
 
             // Balance corpus to respect the percentages sets on the configuration
-            new BalanceCorpusTask(generateCorpusState, outputCorpusConfig.getSpamDir(),
+            new BalanceCorpus(generateCorpusState, outputCorpusConfig.getSpamDir(),
                     outputCorpusConfig.getHamDir(), config)
                     .execute();
 
