@@ -15,8 +15,8 @@ import java.awt.*;
  * Dialog to introduce the user credentials
  */
 public class LoginDialog extends CustomJDialog{
-    private static final String DEFAULT_USER = "demo";
-    private static final String DEFAULT_PASSWORD = "demo";
+    private static final String DEFAULT_USER = "jane@warcrepository.com";
+    private static final String DEFAULT_PASSWORD = "secret";
     private LoginAction loginAction;
     private JFormattedTextField userEmail;
     private JPasswordField userPassword;

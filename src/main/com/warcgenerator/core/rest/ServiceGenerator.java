@@ -15,7 +15,8 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class ServiceGenerator {
-    public static final String API_URL = "http://localhost:8080/api/";
+    public static final String API_URL = "http://x.atopa.me:8080/api/";
+    public static final String DEBUG_API_URL = "http://localhost:8080/api/";
 
     public static <S> S createService(Class<S> serviceClass) {
         // Create a OkHttpClient shared instance
