@@ -24,7 +24,7 @@ public class ReadURLsTask extends Task implements ITask {
 	private GenerateCorpusState generateCorpusState;
 	private AppConfig config;
 	private Map<String, DataBean> urls;
-	private IDataSource spamDS, hamDS, labeledDS, notFoundDS;
+	private IDataSource labeledDS, notFoundDS;
 	private OutputCorpusConfig outputCorpusConfig;
 	private IWebCrawler webCrawler;
 	private Map<String, DataSource> outputDS;
@@ -40,8 +40,6 @@ public class ReadURLsTask extends Task implements ITask {
 			OutputCorpusConfig outputCorpusConfig,
 			GenerateCorpusState generateCorpusState,
 			Map<String, DataSource> outputDS,
-			IDataSource spamDS,
-			IDataSource hamDS,
 			IDataSource labeledDS,
 			IDataSource notFoundDS,
 			Map<String, DataBean> urls, 
@@ -52,8 +50,6 @@ public class ReadURLsTask extends Task implements ITask {
 		this.outputCorpusConfig = outputCorpusConfig;
 		this.generateCorpusState = generateCorpusState;
 		this.outputDS = outputDS;
-		this.spamDS = spamDS;
-		this.hamDS = hamDS;
 		this.labeledDS = labeledDS;
 		this.notFoundDS = notFoundDS;
 		this.urls = urls;
@@ -68,7 +64,7 @@ public class ReadURLsTask extends Task implements ITask {
 		if (urls.size() > 0) {
 			generateCorpusState.setState(GenerateCorpusStates.READING_URLS);
 			generateCorpusState.setWebsToVisitTotal(urls.size());
-			WebCrawlerBean webCrawlerBean = new WebCrawlerBean(spamDS, hamDS, labeledDS,
+			WebCrawlerBean webCrawlerBean = new WebCrawlerBean(labeledDS,
 					notFoundDS, isSpam, outputCorpusConfig);
 			
 			WebCrawlerConfig webCrawlerConfig = new WebCrawlerConfig(

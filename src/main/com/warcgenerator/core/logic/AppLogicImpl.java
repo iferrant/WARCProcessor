@@ -354,8 +354,6 @@ public class AppLogicImpl extends AppLogic implements IAppLogic {
 
 		IDataSource labeledDS = null;
 		IDataSource notFoundDS = null;
-		IDataSource spamDS = null;
-        IDataSource hamDS = null;
 
 		try {
 			// Corpus Path dirs
@@ -374,10 +372,6 @@ public class AppLogicImpl extends AppLogic implements IAppLogic {
 			ConfigHelper.getDSHandlers(config, dataSourcesTypes);
 
 			// Generate wars
-            spamDS = new GenericDS(new DataSourceConfig(
-                    outputCorpusConfig.getCorpusDir() + File.separator + config.getSpamDirName() + ".txt"));
-            hamDS = new GenericDS(new DataSourceConfig(
-                    outputCorpusConfig.getCorpusDir() + File.separator + config.getHamDirName() + ".txt"));
 			labeledDS = new GenericDS(new DataSourceConfig(
 					outputCorpusConfig.getDomainsLabeledFilePath()));
 			notFoundDS = new GenericDS(new DataSourceConfig(
@@ -403,12 +397,12 @@ public class AppLogicImpl extends AppLogic implements IAppLogic {
 
 				// ////////// READING SPAM
 				Task t2 = new ReadURLsTask(config, outputCorpusConfig,
-						generateCorpusState, outputDS, spamDS, hamDS, labeledDS,
+						generateCorpusState, outputDS, labeledDS,
                         notFoundDS, urlsSpam, true, urlsActive, urlsNotActive);
 
 				// ////////// READING HAM
 				Task t3 = new ReadURLsTask(config, outputCorpusConfig,
-						generateCorpusState, outputDS, spamDS, hamDS, labeledDS,
+						generateCorpusState, outputDS, labeledDS,
                         notFoundDS, urlsHam, false, urlsActive, urlsNotActive);
 
 				// Read url that contains html
