@@ -271,6 +271,10 @@ public class WarcDS extends DataSource implements IDataSource {
 		    language = TrigramLanguageGuesser.detectLanguage(html);
         }
 
+        if (language != null && language.length() > 5) {
+			language = "en";
+		}
+
 		return language;
 	}
 }
