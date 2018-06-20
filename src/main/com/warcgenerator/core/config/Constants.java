@@ -1,6 +1,5 @@
 package com.warcgenerator.core.config;
 
-import java.io.File;
 import java.sql.Timestamp;
 
 /**
@@ -13,9 +12,11 @@ public interface Constants {
 	String outputEnconding = "UTF-8";
 	String outputContentType = "text/html";
 	String configSchemaFilePath = "/config/schema/config.xsd";
+	String summarySchemaFilePath = "/config/schema/summary.xsd";
 	String defaultConfigXML= "/config/config.xml";
 	String dataSourcesTypesXML= "/config/datasources.xml";
 	String corpusConfigFile= "corpus_config.xml";
+	String corpusSummaryFile = "corpus_summary.xml";
 
 	public interface AppConfigConstants {
 		String CORPUS_DIR_PATH_DEFAULT = "RESULT";

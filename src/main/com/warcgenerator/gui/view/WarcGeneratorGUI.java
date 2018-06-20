@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -46,11 +45,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import com.warcgenerator.core.config.DataSourceConfig;
 import com.warcgenerator.core.logic.IAppLogic;
-import com.warcgenerator.gui.actions.common.AboutOfAction;
-import com.warcgenerator.gui.actions.common.ChangeLanguageAction;
-import com.warcgenerator.gui.actions.common.ExitAction;
-import com.warcgenerator.gui.actions.common.OpenOutputFolderAction;
-import com.warcgenerator.gui.actions.common.RecentFileCBItem;
+import com.warcgenerator.gui.actions.common.*;
 import com.warcgenerator.gui.actions.datasource.DSAsisstantCreateAction;
 import com.warcgenerator.gui.actions.datasource.DSourcesAction;
 import com.warcgenerator.gui.actions.file.CreateNewConfigAction;
@@ -62,6 +57,7 @@ import com.warcgenerator.gui.actions.general.GeneralConfigAction;
 import com.warcgenerator.gui.actions.generate.GenerateCorpusAction;
 import com.warcgenerator.gui.actions.other.OtherConfigAction;
 import com.warcgenerator.gui.actions.output.OutputConfigAction;
+import com.warcgenerator.gui.actions.upload.UploadCorpusAction;
 import com.warcgenerator.gui.common.Constants;
 import com.warcgenerator.gui.common.Session;
 import com.warcgenerator.gui.components.CustomButton;
@@ -89,6 +85,8 @@ public class WarcGeneratorGUI extends Observable {
 
 	private Action assistantCreateDSAction;
 	private Action generateCorpusAction;
+    private Action loginAction;
+    private Action uploadCorpusAction;
 	private Action openOutputFolderAction;
 	private OutputConfigAction outputConfigAction;
 	private OtherConfigAction otherConfigAction;
@@ -161,6 +159,8 @@ public class WarcGeneratorGUI extends Observable {
 
 		assistantCreateDSAction = new DSAsisstantCreateAction(logic, this);
 		generateCorpusAction = new GenerateCorpusAction(logic, this);
+        loginAction = new OpenLoginAction(this);
+        uploadCorpusAction = new UploadCorpusAction(this);
 		openOutputFolderAction = new OpenOutputFolderAction(logic, this);
 		generalConfigAction = new GeneralConfigAction(logic, this,
 				generalConfigPanel);
@@ -327,16 +327,31 @@ public class WarcGeneratorGUI extends Observable {
 		});
 		mnDataSources.add(mntmCreateNewDS);
 
-		final CustomMenu mnHelp = new CustomMenu();
-		mnHelp.setName("WarcGeneratorGUI.mnHelp.text");
-		addLocaleChangeListener(mnHelp);
-		menuBar.add(mnHelp);
+		final CustomMenu mnPreferences = new CustomMenu();
+		mnPreferences.setName("WarcGeneratorGUI.mnPreferences.text");
+		addLocaleChangeListener(mnPreferences);
+		menuBar.add(mnPreferences);
+
+		final CustomMenuItem mnLogin = new CustomMenuItem();
+		mnLogin.setName("WarcGeneratorGUI.mnLogin.text");
+		addLocaleChangeListener(mnLogin);
+		mnLogin.setHorizontalAlignment(SwingConstants.LEFT);
+		mnPreferences.add(mnLogin);
+		mnLogin.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                loginAction.actionPerformed(actionEvent);
+            }
+        });
+
+        separator = new JSeparator();
+        mnPreferences.add(separator);
 
 		final CustomMenu mnLanguages = new CustomMenu();
 		mnLanguages.setName("WarcGeneratorGUI.mnLanguages.text");
 		addLocaleChangeListener(mnLanguages);
 		mnLanguages.setHorizontalAlignment(SwingConstants.LEFT);
-		mnHelp.add(mnLanguages);
+		mnPreferences.add(mnLanguages);
 
 		mnSpanish = new CustomMenuItem();
 		mnSpanish.setName("WarcGeneratorGUI.mnSpanish.text");
@@ -371,10 +386,12 @@ public class WarcGeneratorGUI extends Observable {
 			}
 		});
 		mnLanguages.add(mnEnglish);
-		mnHelp.add(mnLanguages);
+		mnPreferences.add(mnLanguages);
 
-		separator = new JSeparator();
-		mnHelp.add(separator);
+        final CustomMenu mnHelp = new CustomMenu();
+        mnHelp.setName("WarcGeneratorGUI.mnHelp.text");
+        addLocaleChangeListener(mnHelp);
+        menuBar.add(mnHelp);
 
 		final CustomMenuItem mnAboutOf = new CustomMenuItem();
 		mnAboutOf.setName("WarcGeneratorGUI.mnAboutOf.text");
@@ -412,6 +429,25 @@ public class WarcGeneratorGUI extends Observable {
 			}
 		});
 		menuBar.add(mnOpenOutputFolder);
+
+        CustomButton mnUploadCorpus = new CustomButton();
+        mnUploadCorpus.setName("WarcGeneratorGUI.mnUploadCorpus.text");
+        addLocaleChangeListener(mnUploadCorpus);
+        mnUploadCorpus.setMinimumSize(new Dimension(90, 26));
+        mnUploadCorpus.setIcon(new ImageIcon(WarcGeneratorGUI.class
+                .getResource("/com/warcgenerator/gui/resources/img/upload.png")));
+        mnUploadCorpus.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        mnUploadCorpus.setHorizontalAlignment(SwingConstants.LEFT);
+        mnUploadCorpus.setMnemonic('U');
+        mnUploadCorpus.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                uploadCorpusAction.actionPerformed(e);
+            }
+        });
+        menuBar.add(mnUploadCorpus);
+
 
 		CustomButton mnGenerarCorpus = new CustomButton();
 		mnGenerarCorpus.setName("WarcGeneratorGUI.mnGenerarCorpus.text");

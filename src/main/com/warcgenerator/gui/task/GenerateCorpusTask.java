@@ -1,5 +1,6 @@
 package com.warcgenerator.gui.task;
 
+import java.io.File;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.CancellationException;
@@ -8,6 +9,8 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
+import com.warcgenerator.core.config.Constants;
+import com.warcgenerator.core.helper.XMLConfigHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -64,6 +67,8 @@ public class GenerateCorpusTask extends SwingWorker<Void, Integer> implements
 	public void done() {
 		try {
 			get();
+
+			generateCorpusSummary();
 
 			StringBuilder sb = new StringBuilder();
 			sb.append(Messages
@@ -167,6 +172,22 @@ public class GenerateCorpusTask extends SwingWorker<Void, Integer> implements
 			publish();
 		}
 	}
+
+    /**
+     * Generate the summary corpus file necessary for the API
+     */
+	private void generateCorpusSummary() {
+        // Save the corpus summary on the corpus folder
+        XMLConfigHelper.saveXmlCorpusSummary(
+                logic.getAppConfig().getOutputConfig().getOutputDir()
+                        + File.separator
+                        + logic.getAppConfig().getCorpusDirName()
+                        + File.separator
+                        + Constants.corpusSummaryFile,
+                logic.getAppConfig(),
+                gcState.getNumUrlSpamCorrectlyLabeled(),
+                gcState.getNumUrlHamCorrectlyLabeled());
+    }
 
 	public boolean isError() {
 		return error;

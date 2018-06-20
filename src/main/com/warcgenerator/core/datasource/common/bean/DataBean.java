@@ -8,6 +8,7 @@ public class DataBean {
 	private String url;
 	private boolean spam;
 	private String typeDS = "";
+	private int httpStatus;
 	private String contentType;
 	private DataSourceConfig dsConfig;
 	
@@ -55,6 +56,14 @@ public class DataBean {
 
 	public void setTypeDS(String typeDS) {
 		this.typeDS = typeDS;
+	}
+
+	public int getHttpStatus() {
+		return httpStatus;
+	}
+
+	public void setHttpStatus(int httpStatus) {
+		this.httpStatus = httpStatus;
 	}
 
 	public String getContentType() {

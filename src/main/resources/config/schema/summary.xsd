@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Schema for corpus summary file
+@author Iván Ferrant
+ -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="summary">
+	  <xs:complexType>
+	    <xs:sequence>
+	      <xs:element name="spamDir" >
+	        <xs:complexType>
+	          <xs:simpleContent>
+	            <xs:extension base="xs:string" />
+	          </xs:simpleContent>
+	        </xs:complexType>
+	      </xs:element>
+          <xs:element name="hamDir" >
+            <xs:complexType>
+              <xs:simpleContent>
+                <xs:extension base="xs:string" />
+              </xs:simpleContent>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="numSpamPages" >
+            <xs:complexType>
+              <xs:simpleContent>
+                <xs:extension base="xs:integer" />
+              </xs:simpleContent>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="numHamPages" >
+            <xs:complexType>
+              <xs:simpleContent>
+                <xs:extension base="xs:integer" />
+              </xs:simpleContent>
+            </xs:complexType>
+          </xs:element>
+	    </xs:sequence>
+	  </xs:complexType>
+	</xs:element>
+</xs:schema>

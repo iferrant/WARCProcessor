@@ -22,8 +22,6 @@ import org.jsoup.nodes.Element;
 public class WebCrawlerHandler implements IWebCrawlerHandler {
 	private AppConfig config;
 	private IDataSource warcDS;
-	private IDataSource domainsSpamDS;
-	private IDataSource domainsHamDS;
 	private IDataSource domainsLabeledDS;
 	private IDataSource domainsNotFoundDS;
 	private boolean isSpam;
@@ -36,15 +34,12 @@ public class WebCrawlerHandler implements IWebCrawlerHandler {
             (WebCrawlerHandler.class);
 	
 	public WebCrawlerHandler(AppConfig config, boolean isSpam,
-			IDataSource domainsSpamDS, IDataSource domainsHamDS,
 			IDataSource domainsNotFoundDS, IDataSource domainsLabeledDS,
 			IDataSource warcDS, Map<String, DataBean> urls,
 			Set<String> urlsActive, Set<String> urlsNotActive, GenerateCorpusState generateCorpusState) {
 		this.config = config;
 		this.isSpam = isSpam;
 		this.warcDS = warcDS;
-		this.domainsSpamDS = domainsSpamDS;
-		this.domainsHamDS = domainsHamDS;
 		this.domainsLabeledDS = domainsLabeledDS;
 		this.domainsNotFoundDS = domainsNotFoundDS;
 		this.urls = urls;
@@ -170,6 +165,7 @@ public class WebCrawlerHandler implements IWebCrawlerHandler {
 				if (config.getDownloadAgain()
 						|| !existPreviousWarcBean) {
 					bean.setData(htmlParseData.getHtml());
+					bean.setHttpStatus(htmlParseData.getHttpStatus());
 					bean.setContentType(htmlParseData.getContentType());
 				}
 				
@@ -184,10 +180,6 @@ public class WebCrawlerHandler implements IWebCrawlerHandler {
 							warcDS.write(bean);
 							OutputHelper.writeLabeled(domainsLabeledDS, htmlParseData.getUrl(),
 									this.isSpam);
-							if (isSpam)
-								OutputHelper.writeSpamHam(domainsSpamDS, htmlParseData.getUrl());
-							else
-								OutputHelper.writeSpamHam(domainsHamDS, htmlParseData.getUrl());
 							generateCorpusState.incDomainsCorrectlyLabeled(this.isSpam);
 						} else {
 							logger.info("URL: " + bean.getUrl() + " doesn't have data.");

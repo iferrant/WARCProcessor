@@ -3,6 +3,7 @@ package com.warcgenerator;
 import java.io.File;
 import java.io.IOException;
 
+import com.warcgenerator.core.rest.models.User;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.archive.util.FileUtils;
@@ -23,6 +24,7 @@ import com.warcgenerator.gui.common.Constants;
  * @author Miguel Callon
  */
 public class AppWarc {
+    public static User userGlobal = new User(); // User loged in the app
 	private static AppWarc singleton = null;
 	private AppConfig config = null;
 	private IAppLogic logic = null;

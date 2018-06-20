@@ -37,7 +37,7 @@ import com.warcgenerator.core.helper.LangFilterHelper;
 import com.warcgenerator.core.helper.XMLConfigHelper;
 import com.warcgenerator.core.task.ExecutionTaskBatch;
 import com.warcgenerator.core.task.Task;
-import com.warcgenerator.core.task.generateCorpus.BalanceCorpusTask;
+import com.warcgenerator.core.balancer.BalanceCorpus;
 import com.warcgenerator.core.task.generateCorpus.CheckActiveSitesConfigTask;
 import com.warcgenerator.core.task.generateCorpus.GetURLFromDSTask;
 import com.warcgenerator.core.task.generateCorpus.ReadURLsTask;
@@ -354,8 +354,6 @@ public class AppLogicImpl extends AppLogic implements IAppLogic {
 
 		IDataSource labeledDS = null;
 		IDataSource notFoundDS = null;
-		IDataSource spamDS = null;
-        IDataSource hamDS = null;
 
 		try {
 			// Corpus Path dirs
@@ -374,10 +372,6 @@ public class AppLogicImpl extends AppLogic implements IAppLogic {
 			ConfigHelper.getDSHandlers(config, dataSourcesTypes);
 
 			// Generate wars
-            spamDS = new GenericDS(new DataSourceConfig(
-                    outputCorpusConfig.getCorpusDir() + File.separator + config.getSpamDirName() + ".txt"));
-            hamDS = new GenericDS(new DataSourceConfig(
-                    outputCorpusConfig.getCorpusDir() + File.separator + config.getHamDirName() + ".txt"));
 			labeledDS = new GenericDS(new DataSourceConfig(
 					outputCorpusConfig.getDomainsLabeledFilePath()));
 			notFoundDS = new GenericDS(new DataSourceConfig(
@@ -403,12 +397,12 @@ public class AppLogicImpl extends AppLogic implements IAppLogic {
 
 				// ////////// READING SPAM
 				Task t2 = new ReadURLsTask(config, outputCorpusConfig,
-						generateCorpusState, outputDS, spamDS, hamDS, labeledDS,
+						generateCorpusState, outputDS, labeledDS,
                         notFoundDS, urlsSpam, true, urlsActive, urlsNotActive);
 
 				// ////////// READING HAM
 				Task t3 = new ReadURLsTask(config, outputCorpusConfig,
-						generateCorpusState, outputDS, spamDS, hamDS, labeledDS,
+						generateCorpusState, outputDS, labeledDS,
                         notFoundDS, urlsHam, false, urlsActive, urlsNotActive);
 
 				// Read url that contains html
@@ -420,17 +414,12 @@ public class AppLogicImpl extends AppLogic implements IAppLogic {
 						urlsNotActive, outputDS, outputCorpusConfig, labeledDS,
 						generateCorpusState);
 
-				// Balance corpus
-				Task t6 = new BalanceCorpusTask(outputCorpusConfig, spamDS, hamDS,
-                        config.getRatioPercentageSpam());
-
 				executorTasks = new ExecutionTaskBatch();
 				executorTasks.addTask(t1);
 				executorTasks.addTask(t2);
 				executorTasks.addTask(t3);
 				executorTasks.addTask(t4);
 				executorTasks.addTask(t5);
-				executorTasks.addTask(t6);
 
 				executorTasks.execution();
 
@@ -457,6 +446,17 @@ public class AppLogicImpl extends AppLogic implements IAppLogic {
 								.getNumSites())
 					stop = true;
 			} while (!executorTasks.isTerminate() && !stop);
+
+            // Close all output datasources
+            // We need to close them to be balanced
+            for (DataSource ds : outputDS.values()) {
+                ds.close();
+            }
+
+            // Balance corpus to respect the percentages sets on the configuration
+            new BalanceCorpus(generateCorpusState, outputCorpusConfig.getSpamDir(),
+                    outputCorpusConfig.getHamDir(), config)
+                    .execute();
 
 			// Show the finish overcome
 			if (!executorTasks.isTerminate()
